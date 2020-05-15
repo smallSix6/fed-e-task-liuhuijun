@@ -12,15 +12,5 @@
 第一行
 第二行
 第三行
-let arr = [12, 34, 32, 89, 4]
-let mininum = arr.reduce((pre, cur) => {
-  let result
-  if (pre < cur) {
-    result = pre
-  } else {
-    result = cur
-  }
-  return result
-})
 ```
   
