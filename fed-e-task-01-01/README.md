@@ -8,7 +8,6 @@
 最终执行结果：报错。
 原因：const和let声明的变量必须要在声明之后才可以使用，用var声明的变量才存在变量提升.
 ### 第三题
-JavaScript 示例：
 ``` javascript
 let arr = [12, 34, 32, 89, 4]
 let mininum = arr.reduce((pre, cur) => {
@@ -21,4 +20,16 @@ let mininum = arr.reduce((pre, cur) => {
   return result
 })
 ```
+### 第四题
+  1.var 声明的是全局变量，全局变量就意味着，会挂载到window对象上面去，而let和const声明的变量去不会出现这样的情况。
+  2.let和const声明的变量不会存在变量提升，所以必须先声明后使用。而var存在变量提升，在声明前使用使用，则值为undefined
+  3.作用域上面 var是全局的 let和const则是块级作用域的
+  4.const声明的变量 必须赋值 且赋值后也不能更改
+
+### 第五题
+  最终执行结果：20。
+  原因：obj调用了fn,则fn中的this为obj，而setTimeout中的函数用的是箭头函数，则箭头函数中的this指向箭头函数的父级（fn）,所以最后的this.a即obj.a=20
+
+### 第六题
+  
   
