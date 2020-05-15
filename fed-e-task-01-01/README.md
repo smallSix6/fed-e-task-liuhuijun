@@ -8,16 +8,16 @@
 &nbsp;&nbsp;&nbsp;&nbsp;最终执行结果：报错。<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;原因：const和let声明的变量必须要在声明之后才可以使用，用var声明的变量才存在变量提升.
 <h3>第三题</h3>
-``
-    let arr = [12,34,32,89,4]
-    let res = arr.reduce((preValue, curValue)=>{
-      let result;
-      if (preValue < curValue) {
-        result = preValue
-      } else {
-        result = curValue
-      }
-      return result
-    })
-``
+```
+let arr = [12, 34, 32, 89, 4]
+let mininum = arr.reduce((pre, cur) => {
+  let result
+  if (pre < cur) {
+    result = pre
+  } else {
+    result = cur
+  }
+  return result
+})
+```
   
