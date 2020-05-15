@@ -8,9 +8,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;最终执行结果：报错。<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;原因：const和let声明的变量必须要在声明之后才可以使用，用var声明的变量才存在变量提升.
 <h3>第三题</h3>
-```
-第一行
-第二行
-第三行
+JavaScript 示例：
+```javascript
+function fib(n) {
+var a = 1, b = 1;
+return a;
+}
+document.write(fib(10));
 ```
   
