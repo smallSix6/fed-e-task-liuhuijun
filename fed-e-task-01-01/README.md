@@ -9,6 +9,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;原因：const和let声明的变量必须要在声明之后才可以使用，用var声明的变量才存在变量提升.
 <h3>第三题</h3>
 ```
+第一行
+第二行
+第三行
 let arr = [12, 34, 32, 89, 4]
 let mininum = arr.reduce((pre, cur) => {
   let result
