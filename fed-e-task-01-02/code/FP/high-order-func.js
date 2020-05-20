@@ -1,4 +1,5 @@
-// 高阶函数-函数作为参数
+// 高阶函数-函数作为参数: forEach、filter、map、every和some
+// foreach函数实现
 // function forEach (array, fn) {
 //   for (let i = 0; i < array.length; i++) {
 //     fn(array[i])
@@ -13,7 +14,7 @@
 
 
 
-// filter
+// filter函数实现
 // function filter(array, fn) {
 //   let result = []
 //   for (let i = 0; i < array.length; i++) {
@@ -31,20 +32,59 @@
 // console.log(r)
 
 
-// 高阶函数-函数作为返回值
-function once(fn) {
-  let done = false
-  return function() {
-    if (!done) {
-      done = true
-      fn.apply(this, arguments)
+// map函数实现
+// const map = (array, fn) => {
+//   let result = []
+//   for (const value of array) {
+//     result.push(fn(value))
+//   }
+//   return result
+// }
+// let arr = [1,2,3,4,5,5]
+// console.log(map(arr,v=>v+v))
+
+//every函数实现
+// const every = (array, fn) => {
+//   for (const value of array) {
+//     if(!fn(value)) {
+//       return false
+//     }
+//     return true
+//   }
+// }
+// let arr = [1,2,3,4,5,5]
+// console.log(every(arr, (item) => {
+//   return item % 1 === 0
+// }))
+
+// some函数实现
+const some = (array, fn) => {
+  for (const value of array) {
+    if(fn(value)) {
+      return true
     }
   }
+  return false
 }
-let pay = once(function (money) {
-  console.log(`支付:${money}RMB`)
-})
-pay(5)
-pay(5)
-pay(5)
-pay(5)
+let arr = [1,2,3,4,5,5]
+console.log(some(arr, (item) => {
+  return item > 7
+}))
+
+// 高阶函数-函数作为返回值
+// function once(fn) {
+//   let done = false
+//   return function() {
+//     if (!done) {
+//       done = true
+//       fn.apply(this, arguments)
+//     }
+//   }
+// }
+// let pay = once(function (money) {
+//   console.log(`支付:${money}RMB`)
+// })
+// pay(5)
+// pay(5)
+// pay(5)
+// pay(5)
