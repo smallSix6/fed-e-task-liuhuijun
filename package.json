@@ -1,0 +1,23 @@
+{
+  "name": "fed-e-task-liuhuijun",
+  "version": "1.0.0",
+  "description": "拉钩教育高薪训练营作业 模块1-01作业地址：https://s0.lgstatic.com/i/image/M00/09/1C/CgqCHl67uAuAYhj8AAwbC0a1ZWY494.png",
+  "main": "a.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smallSix6/fed-e-task-liuhuijun.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smallSix6/fed-e-task-liuhuijun/issues"
+  },
+  "homepage": "https://github.com/smallSix6/fed-e-task-liuhuijun#readme",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
+}
