@@ -58,33 +58,38 @@
 // }))
 
 // some函数实现
-const some = (array, fn) => {
-  for (const value of array) {
-    if(fn(value)) {
-      return true
-    }
-  }
-  return false
-}
-let arr = [1,2,3,4,5,5]
-console.log(some(arr, (item) => {
-  return item > 7
-}))
-
-// 高阶函数-函数作为返回值
-// function once(fn) {
-//   let done = false
-//   return function() {
-//     if (!done) {
-//       done = true
-//       fn.apply(this, arguments)
+// const some = (array, fn) => {
+//   for (const value of array) {
+//     if(fn(value)) {
+//       return true
 //     }
 //   }
+//   return false
 // }
-// let pay = once(function (money) {
-//   console.log(`支付:${money}RMB`)
-// })
-// pay(5)
-// pay(5)
-// pay(5)
-// pay(5)
+// let arr = [1,2,3,4,5,5]
+// console.log(some(arr, (item) => {
+//   return item > 7
+// }))
+
+// 高阶函数-函数作为返回值
+function Once(fn) {
+  let done = false
+  return function() {
+    if (!done) {
+      done = true
+      fn.apply(this, arguments)
+    }
+  }
+}
+let pay = new Once(function (money) {
+  console.log(`支付:${money}RMB`)
+})
+
+const func =  function (money) {
+  console.log(`支付:${money}RMB`)
+}
+const pay1 = once(func)
+pay1(500)
+pay1(500)
+pay1(500)
+
