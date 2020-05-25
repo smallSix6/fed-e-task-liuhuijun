@@ -50,4 +50,66 @@
 // )
 // console.log(r)
 
- 
+
+
+class Functor {
+  static of(val) {
+    return new Functor(val);
+  }
+  constructor(val) { 
+    this.val = val; 
+  }
+
+  map(f) {
+    return new Functor(f(this.val));
+  }
+}
+
+
+// (new Functor(2)).map(function (two) {
+//   return two + 2;
+// });
+
+// class Maybe {
+//   static of(val) {
+//     return new Maybe(val);
+//   }
+//   constructor(val) { 
+//     this.val = val; 
+//   }
+//   map(f) {
+//     return this.val ? Maybe.of(f(this.val)) : Maybe.of(null);
+//   }
+// }
+// let mayBeFunctor = Maybe.of(null).map(function (s) {
+//   return s.toUpperCase();
+// });
+// console.log(mayBeFunctor)
+
+class Ap {
+  static of(val) {
+    return new Ap(val);
+  }
+  constructor(val) { 
+    this.val = val; 
+  }
+  map(f) {
+    return Ap.of(f(this.val));
+  }
+  ap(F) {
+    return Ap.of(this.val(F.val))
+  }
+}
+
+function addTwo(x) {
+  return x + 2;
+}
+function add(x) {
+  return function (y) {
+    return x + y;
+  };
+}
+console.log(Ap.of(add).ap(Functor.of(2)).ap(Functor.of(3)))
+
+
+
