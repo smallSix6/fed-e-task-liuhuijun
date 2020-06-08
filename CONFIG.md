@@ -1,9 +1,9 @@
 ## Eslint+TS+React Hooks
-### 一、安装相关依赖
-#### 1.1 安装 Typescript	
-##### 推荐使用全局安装，可以在其他项目中也使用TS。	npm install -g typescript
-#### 1.2 安装声明文件	
-##### 所需的 react, react-dom 的声明文件, 以及加载TS的ts-loader	npm install --save-dev @types/react @types/react-dom ts-loader
+### 一、安装相关依赖
+#### 1.1 安装 Typescript
+##### 推荐使用全局安装，可以在其他项目中也使用TS   npm install -g typescript
+#### 1.2 安装声明文件
+##### 所需的 react, react-dom 的声明文件, 以及加载TS的ts-loader    npm install --save-dev @types/react @types/react-dom ts-loader
 #### 1.3 配置 tsconfig.json
 ##### 在使用Typescript时需要根据实际项目的需要进行相关规则的配置，具体配置根据项目而异、可参考官网，具体看这里TS官网。我的配置项如下所示：
 ```js
