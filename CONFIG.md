@@ -1,4 +1,4 @@
-## Eslint+TS+React Hooks
+## Eslint+TS+husky+React Hooks
 ### 一、安装相关依赖
 #### 1.1 安装 Typescript
 + 推荐使用全局安装，可以在其他项目中也使用TS   npm install -g typescript
@@ -263,21 +263,28 @@
 }
 ```
 #### 2.2.4 安装依赖
-+ npm install husky --save-dev
-+ 在package.json的script中配置：
++ npm install husky lint-staged --save-dev
++ 在package.json中配置：
 ```js
     "scripts": {
         "lint": "eslint --ext .js,.jsx,.ts,.tsx src --fix"
     },
     "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "src/**/*.{js,ts,jsx,tsx}": [
+            "npm run lint",
+            "git add"
+        ]
     }
-  },
-  "lint-staged": {
-    "src/**/*.{js,ts,jsx,tsx}": [
-      "npm run lint",
-      "git add"
-    ]
-  }
 ```
+
+### 三、React Hooks
+
+#### 3.2 useEffect
++       使用多个Effect实现关注点分离
++       没有了生命周期的概念，代码更精简，还可以减少bug的风险
++       通过跳过Effect进行性能优化
