@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../../lagou/fed-e-001/codes/02-02-02-01-webpack-demo"
+		}
+	],
+  "settings": {
+    "git.ignoreLimitWarning": true
+  }
+}
