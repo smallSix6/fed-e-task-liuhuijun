@@ -77,7 +77,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "dist/";
+/******/ 	__webpack_require__.p = "";
 /******/
 /******/
 /******/ 	// Load entry module and return exports
@@ -90,40 +90,29 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _heading_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_main_css__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _test_jpg__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
+/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_main_css__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _footer_html__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var _footer_html__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_footer_html__WEBPACK_IMPORTED_MODULE_1__);
+// import createHeading from './heading.js'
+// import './main.css'
+// import icon from './test.jpg'
+// const heading = createHeading()
+// document.body.append(heading)
+// const img = new Image()
+// img.src = icon
+// document.body.append(img)
+console.logss;
 
 
-
-var heading = Object(_heading_js__WEBPACK_IMPORTED_MODULE_0__["default"])();
-document.body.append(heading);
-var img = new Image();
-img.src = _test_jpg__WEBPACK_IMPORTED_MODULE_2__["default"];
-document.body.append(img);
+document.write(_footer_html__WEBPACK_IMPORTED_MODULE_1___default.a);
 
 /***/ }),
 /* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = (function () {
-  var element = document.createElement('h2');
-  element.textContent = 'Hello world';
-  element.addEventListener('click', function () {
-    console.log('Hello webpack');
-  });
-  return element;
-});
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var api = __webpack_require__(3);
-            var content = __webpack_require__(4);
+var api = __webpack_require__(2);
+            var content = __webpack_require__(3);
 
             content = content.__esModule ? content.default : content;
 
@@ -143,7 +132,7 @@ var update = api(content, options);
 module.exports = content.locals || {};
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -418,23 +407,29 @@ module.exports = function (list, options) {
 };
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(5);
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(4);
+var ___CSS_LOADER_AT_RULE_IMPORT_0___ = __webpack_require__(5);
+var ___CSS_LOADER_GET_URL_IMPORT___ = __webpack_require__(6);
+var ___CSS_LOADER_URL_IMPORT_0___ = __webpack_require__(7);
 exports = ___CSS_LOADER_API_IMPORT___(false);
+exports.i(___CSS_LOADER_AT_RULE_IMPORT_0___);
+var ___CSS_LOADER_URL_REPLACEMENT_0___ = ___CSS_LOADER_GET_URL_IMPORT___(___CSS_LOADER_URL_IMPORT_0___);
 // Module
-exports.push([module.i, "body {\n    margin: 0 auto;\n    padding: 0 20px;\n    background: red;\n}", ""]);
+exports.push([module.i, "body {\n    margin: 0 auto;\n    padding: 0 20px;\n    background-image: url(" + ___CSS_LOADER_URL_REPLACEMENT_0___ + ");\n    background-size: cover;\n}", ""]);
 // Exports
 module.exports = exports;
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
 
 /*
   MIT License http://www.opensource.org/licenses/mit-license.php
@@ -442,7 +437,6 @@ module.exports = exports;
 */
 // css base code, injected by the css-loader
 // eslint-disable-next-line func-names
-
 module.exports = function (useSourceMap) {
   var list = []; // return the list of modules as css string
 
@@ -531,12 +525,111 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Imports
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(4);
+exports = ___CSS_LOADER_API_IMPORT___(false);
+// Module
+exports.push([module.i, "* {\n    margin: 0;\n    padding: 0;\n}", ""]);
+// Exports
+module.exports = exports;
+
+
+/***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (url, options) {
+  if (!options) {
+    // eslint-disable-next-line no-param-reassign
+    options = {};
+  } // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+
+
+  url = url && url.__esModule ? url.default : url;
+
+  if (typeof url !== 'string') {
+    return url;
+  } // If url is already wrapped in quotes, remove them
+
+
+  if (/^['"].*['"]$/.test(url)) {
+    // eslint-disable-next-line no-param-reassign
+    url = url.slice(1, -1);
+  }
+
+  if (options.hash) {
+    // eslint-disable-next-line no-param-reassign
+    url += options.hash;
+  } // Should url be wrapped?
+  // See https://drafts.csswg.org/css-values-3/#urls
+
+
+  if (/["'() \t\n]/.test(url) || options.needQuotes) {
+    return "\"".concat(url.replace(/"/g, '\\"').replace(/\n/g, '\\n'), "\"");
+  }
+
+  return url;
+};
+
+/***/ }),
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (__webpack_require__.p + "1edb59443a2e280109d439c88d45b7ba.jpg");
 
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Imports
+var ___HTML_LOADER_GET_SOURCE_FROM_IMPORT___ = __webpack_require__(9);
+var ___HTML_LOADER_IMPORT_0___ = __webpack_require__(7);
+// Module
+var ___HTML_LOADER_REPLACER_0___ = ___HTML_LOADER_GET_SOURCE_FROM_IMPORT___(___HTML_LOADER_IMPORT_0___);
+var code = "<footer>\n    <!-- <img src=\"test.jpg\" alt=\"test\" width=\"256\" /> -->\n    <a href=\"" + ___HTML_LOADER_REPLACER_0___ + "\">download  jpg</a>\n</footer>";
+// Exports
+module.exports = code;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (url, options) {
+  if (!options) {
+    // eslint-disable-next-line no-param-reassign
+    options = {};
+  } // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+
+
+  url = url && url.__esModule ? url.default : url;
+
+  if (typeof url !== 'string') {
+    return url;
+  }
+
+  if (options.hash) {
+    // eslint-disable-next-line no-param-reassign
+    url += options.hash;
+  }
+
+  if (options.maybeNeedQuotes && /[\t\n\f\r "'=<>`]/.test(url)) {
+    return "\"".concat(url, "\"");
+  }
+
+  return url;
+};
+
 /***/ })
 /******/ ]);
+//# sourceMappingURL=bundle.js.map

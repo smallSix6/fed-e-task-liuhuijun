@@ -1,5 +1,7 @@
+@import url(reset.css);
 body {
     margin: 0 auto;
     padding: 0 20px;
-    background: red;
+    background-image: url(test.jpg);
+    background-size: cover;
 }

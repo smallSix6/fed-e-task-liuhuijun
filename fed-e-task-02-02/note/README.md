@@ -128,7 +128,7 @@
   + 代码拆分（code splitting)
   + 资源模块 （Asset Module)
 
-##### 3、webpack快速上手、配置文件、工作模式、打包运行结果、资源模块加载、
+##### 3、webpack快速上手、配置文件、工作模式、打包运行结果、资源模块加载、导入资源模块、文件资源加载器、URL加载器、自动清除输出目录插件、自动生成HTML插件、webpack-dev-server、webpack-dev-server 代理 API
 + 代码部分见./code/webpack/start-01
 + Data URLs(data:[<mediatype>][;base64],<data>): 示例（data:text/html;charset=UTF-8,<h1>html content</h1>）,组成部分如下
   + （data）: 协议
@@ -141,11 +141,52 @@
   + "style-loader": style插入html
   + "url-loader": 解析为data URLs的形式
   + "babel-loader","@babel/core","@babel/preset-env": 解析为 es2015
+  + "html-loader": 解析html
 
 ##### 4、常用加载器分类
 + 编译转换类
 + 文件操作类
 + 代码检查类
+
+##### 5、加载资源的方式
++ 遵循 ES Modules 标准的 import 声明
++ 遵循 CommonJS 标准的 require 函数
++ 遵循 AMD 标准的 define 函数和 require 函数
++ 样式代码中的 @import 指令和 url 函数
++ HTML 代码中图片标签的 src 属性
+
+##### 6、读取md文档的loader插件
++ 代码部分见./code/webpack/markdownLoader
+
+##### 7、开发一个插件
++ 一个函数或者是一个包含apply方法的对象
++ 通过在生命周期的钩子中挂载函数实现扩展
++ 代码部分见./code/webpack/start-01
+
+##### 8、devtool模式对比
++ 模式汇总：
+  + 'eval'：模块代码放到eval函数中执行
+	+ 'cheap-eval-source-map'：生成map文件，代码经过 loader 转化，但只能定位错误的行,
+	+ 'cheap-module-eval-source-map'：生成map文件,代码为编写的源代码，但只能定位错误的行,
+	+ 'eval-source-map'：生成map文件，并可定位错误的行和列,
+	+ 'cheap-source-map'：生成map文件，没有eval函数,
+	+ 'cheap-module-source-map'：,
+	+ 'inline-cheap-source-map',
+	+ 'inline-cheap-module-source-map',
+	+ 'source-map',
+	+ 'inline-source-map',
+	+ 'hidden-source-map',
+	+ 'nosources-source-map'：不暴露源代码，但显示错误的行和列
++ 代码部分见./code/webpack/devtool
+
+##### 9、选择合适的 source map 模式
++ 开发模式下：cheap-module-eval-source-map,原因如下：
+  + 代码每行不会超过80个字符，所以只需定位到行
+  + 代码经过 Loader 转换过后的差异较大
+  + 首次打包速度慢无所谓，重写打包相对快
++ 生产模式：none,原因如下
+  + Source Map 会暴露源代码
+  + 调试是开发阶段的事情
 
 
 
