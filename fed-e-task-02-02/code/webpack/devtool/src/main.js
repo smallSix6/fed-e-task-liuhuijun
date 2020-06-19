@@ -1,5 +1,6 @@
 import createHeading from './heading.js'
 
+console.log(API_BASE_URL)
 const heading = createHeading()
 
 document.body.append(heading)

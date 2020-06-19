@@ -188,8 +188,36 @@
   + Source Map 会暴露源代码
   + 调试是开发阶段的事情
 
+##### 10、HMR 介绍
++ HMR定义：热替换只将修改的模块实时替换至应用中，而不用刷新页面，webpack中最强大的功能之一，极大地提高了开发效率
++ 代码部分见./code/webpack/webpack-hmr
 
+##### 11、DefinePlugin
++ 用处：为代码注入全局成员
++ 代码部分见./code/webpack/webpack-hmr
 
+##### 12、Tree Shaking、Scope Hoisting
++ Tree Shaking: 用到什么模块就导出什么模块，没有用到的模块就不打包
++ Scope Hoisting:既提升了运行效率，又减少了代码的体积
++ 最新版的babel-loader不会将 esm 转化为 commonjs ,如果需要转化，代码如下
+```js
+{
+  test: /\.js$/,
+  use: {
+    loader: 'babel-loader',
+    options: {
+      presets: [
+        // 如果 Babel 加载模块时已经转换了 ESM，则会导致 Tree Shaking 失效
+        // ['@babel/preset-env', { modules: 'commonjs' }]
+        // ['@babel/preset-env', { modules: false }]
+        // 也可以使用默认配置，也就是 auto，这样 babel-loader 会自动关闭 ESM 转换
+        ['@babel/preset-env', { modules: 'auto' }]
+      ]
+    }
+  }
+}
+```
++ 代码部分见./code/webpack/tree-shaking
 
 
 

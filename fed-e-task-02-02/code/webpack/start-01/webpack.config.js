@@ -2,7 +2,7 @@ const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { compilation } = require('webpack')
+const webpack = require('webpack')
 
 class Myplugin {
     apply(compiler) {
@@ -33,21 +33,22 @@ module.exports = {
         // publicPath: 'dist/'
     },
     mode: 'none', // none development production
-    // devServer: {
-    //     contentBase: './public',
-    //     proxy: {
-    //         '/api': {
-    //             // http://localhost:8080/api/users > https://api.github.com/api/users
-    //             target: 'https://api.github.com',
-    //             pathRewrite: {
-    //                 // http://localhost:8080/api/users > https://api.github.com/users
-    //                 '^/api': ''
-    //             },
-    //             // 不能使用 localhost:8080 作为请求 Github 的主机名
-    //             changeOrigin: true
-    //         }
-    //     }
-    // },
+    devServer: {
+        // contentBase: './public',
+        // proxy: {
+        //     '/api': {
+        //         // http://localhost:8080/api/users > https://api.github.com/api/users
+        //         target: 'https://api.github.com',
+        //         pathRewrite: {
+        //             // http://localhost:8080/api/users > https://api.github.com/users
+        //             '^/api': ''
+        //         },
+        //         // 不能使用 localhost:8080 作为请求 Github 的主机名
+        //         changeOrigin: true
+        //     }
+        // },
+        hot: true
+    },
     devtool: 'source-map',
     module: {
         rules: [{
@@ -113,6 +114,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'about.html'
         }),
+        new webpack.HotModuleReplacementPlugin(),
         // 开发阶段最好不要使用这个插件
         // new CopyWebpackPlugin({
         //     patterns: [
