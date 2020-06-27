@@ -77,6 +77,6 @@ exports.styleLoaders = function(options) {
             use: loader
         })
     }
-
+    console.log(111, JSON.stringify(output))
     return output
 }

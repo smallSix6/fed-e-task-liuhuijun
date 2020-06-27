@@ -5,8 +5,6 @@ import './style.less'
 
 Vue.config.productionTip = false
 
-var a = sdfdsf
-
 
 new Vue({
     render: h => h(App),

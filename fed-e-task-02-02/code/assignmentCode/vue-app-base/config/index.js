@@ -24,7 +24,7 @@ module.exports = {
         assetsPublicPath: '/',
         productionSourceMap: true,
         devtool: 'none',
-        productionGzip: false,
+        productionGzip: true,
         productionGzipExtensions: ['js', 'css'],
 
         // Run the build command with an extra argument to
