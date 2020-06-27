@@ -220,6 +220,677 @@
 + 代码部分见./code/webpack/tree-shaking
 
 
+#### 任务三、 其它打包工具
+
+Rollup也是一款ESModule打包器，可以将项目中的细小模块打包成整块代码，使得划分的模块可以更好的运行在浏览器环境或者是Nodejs环境。Rollup与Webpack作用非常类似，不过Rollup更为小巧。webpack结合插件可以完成前端工程化的绝大多数工作，而Rollup仅仅是一款ESM打包器，没有其他功能，例如Rollup中并不支持类似HMR这种高级特性。Rollup并不是要与Webpack全面竞争，而是提供一个充分利用ESM各项特性的高效打包器。
+
+##### 1、rollup使用
+
+./src/message.js
+
+```js
+export default {
+  hi: 'I am liuzi '
+}
+```
+
+./src/logger.js
+
+```js
+export const log = msg => {
+  console.log(msg)
+}
+
+export const error = msg => {
+  console.error(mes)
+}
+```
+
+./src/index.js
+
+```js
+import {log} from './logger'
+import messages from './message'
+
+const msg = messages.hi
+
+log(msg)
+```
+
+安装Rollup：`yarn add rollup --dev`
+
+运行：`yarn rollup ./src/index.js --format iife --file dist/bundle.js`
+
+./dist/bundle.js
+
+```js
+(function () {
+  'use strict';
+
+  const log = msg => {
+    console.log(msg);
+  };
+
+  var messages = {
+    hi: 'I am liuzi '
+  };
+
+  const msg = messages.hi;
+
+  log(msg);
+
+}());
+
+```
+
+Rollup默认会开启TreeShaking优化输出结果。
+
+配置文件：rollup.config.js
+
+```js
+export default {
+  input: './src/index.js',
+  output: {
+    file: 'dist/bundle.js',
+    format: 'iife'
+  }
+}
+```
+
+运行：`yarn rollup --config` , 指定配置文件：`yarn rollup --config rollup.config.js`
+
+##### 2、 rollup插件
+
+Rollup自身的功能就是对ESM进行合并打包，如果需要更高级的功能，如加载其他类型资源模块，导入CommonJS模块，编译ES新特性，Rollup支持使用插件的方式扩展实现，插件是Rollup唯一的扩展方式。
+
+通过导入json文件学习如何使用Rollup插件。
+
+安装插件`rollup-plugin-json`, 运行：`yarn add rollup-plugin-json --dev`
+
+Rollup.config.js
+
+```js
+import json from 'rollup-plugin-json'
+
+export default {
+  input: './src/index.js',
+  output: {
+    file: 'dist/bundle.js',
+    format: 'iife'
+  },
+  plugins: [
+    json()
+  ]
+}
+```
+
+./src/index.js
+
+```js
+import {log} from './logger'
+import messages from './message'
+import {name, version} from '../package.json'
+const msg = messages.hi
+
+log(msg)
+log(name)
+log(version)
+```
+
+./dist/bundle.js
+
+```js
+(function () {
+  'use strict';
+
+  const log = msg => {
+    console.log(msg);
+  };
+
+  var messages = {
+    hi: 'I am liuzi '
+  };
+
+  var name = "Rollup-test";
+  var version = "1.0.0";
+
+  const msg = messages.hi;
+
+  log(msg);
+  log(name);
+  log(version);
+
+}());
+```
+
+json中用到的属性被打包进来了，没用到的属性被TreeShaking移除掉了。
+
+##### 3、 rollup 加载npm依赖
+
+Rollup不能像webpack那样通过模块名称加载npm模块，为了抹平差异，Rollup官方提供了一个插件`rollup-plugin-node-resolve`，通过这个插件，就可以在代码中使用模块名称导入模块。
+
+安装插件：`yarn add rollup-plugin-node-resolve --dev`
+
+Rollup.config.js
+
+```js
+import json from 'rollup-plugin-json'
+import resolve from 'rollup-plugin-node-resolve'
+export default {
+  input: './src/index.js',
+  output: {
+    file: 'dist/bundle.js',
+    format: 'iife'
+  },
+  plugins: [
+    json(),
+    resolve()
+  ]
+}
+```
+
+./src/index.js
+
+```js
+import _ from 'lodash-es' // lodash模块的ESM版本
+import {log} from './logger'
+import messages from './message'
+import {name, version} from '../package.json'
+const msg = messages.hi
+
+log(msg)
+log(name)
+log(version)
+log(_.camelCase('hello world'))
+```
+
+##### 4、 Rollup加载CommonJS模块
+
+安装插件: `yarn add rollup-plugin-commonjs`
+
+Rollup.config.js
+
+```js
+import json from 'rollup-plugin-json'
+import resolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
+export default {
+  input: './src/index.js',
+  output: {
+    file: 'dist/bundle.js',
+    format: 'iife'
+  },
+  plugins: [
+    json(),
+    resolve(),
+    commonjs()
+  ]
+}
+```
+
+./src/index.js
+
+```js
+import _ from 'lodash-es' // lodash模块的ESM版本
+import {log} from './logger'
+import messages from './message'
+import {name, version} from '../package.json'
+import cjs from './cjs.module'
+const msg = messages.hi
+
+log(msg)
+log(name)
+log(version)
+log(_.camelCase('hello world'))
+
+log(cjs)
+```
+
+./dist/bundle.js
+
+```js
+// ...
+
+  var cjs_module = {
+    foo: 'bor'
+  };
+
+// ...
+
+  log(cjs_module);
+// ...
+```
+
+##### 5、 Rollup代码差分 : 动态导入
+
+使用动态导入的方式实现模块的按需加载，Rollup内部会自动去处理代码的拆分，也就是分包。
+
+Rollup.config.js
+
+```js
+import json from 'rollup-plugin-json'
+import resolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
+export default {
+  input: './src/index.js',
+  output: {
+    // file: 'dist/bundle.js',
+    // format: 'iife',
+    dir: 'dist',
+    format: 'amd'
+  },
+  plugins: [
+    json(),
+    resolve(),
+    commonjs()
+  ]
+}
+```
+
+./src/index.js
+
+```js
+import('./logger').then(({ log }) => {
+  log('code splitting~')
+})
+```
+
+##### 6、 Rollup多入口打包
+
+rollup.config.js
+
+```js
+import json from 'rollup-plugin-json'
+import resolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
+export default {
+  // input: './src/index.js',
+  // input: ['src/index.js', 'src/album.js'], // 多入口打包
+  input: { // 这种写法也可以进行多入口打包
+    foo: 'src/index.js',
+    bar: 'src/album.js'
+  },
+  output: {
+    // file: 'dist/bundle.js',
+    // format: 'iife',
+    dir: 'dist', // 动态导入时会分包成多文件
+    format: 'amd' // 动态导入不支持iife
+  },
+  plugins: [
+    json(),
+    resolve(),
+    commonjs()
+  ]
+}
+```
+
+注意此时生成的js文件就要以AMD标准的require方式引入
+
+##### 7、 Rollup优势
+
++ 输出结果更加扁平，执行效率更高
++ 自动移除未引用的代码
++ 打包结果依然完全可读
+
+##### 8、 Rollup缺点
+
++ 加载非ESM的第三方模块比较复杂
++ 模块最终都会被打包到一个函数中，无法实现HMR
++ 浏览器环境中，代码拆分功能依赖AMD库
+
+如果我们正在开发应用程序，需要引入大量的第三方库，代码量又大，需要分包打包，Rollup的作用则会比较欠缺。
+
+如果我们正在开发一个框架或者类库，Rollup的这些优点则非常有必要，缺点则可以忽略。所以大多数知名框架/库都在使用Rollup作为模块打包器。
+
+总结：Webpack大而全，Rollup小而美。
+
+选择标准：
+
++ 开发应用程序选择Webpack
++ 开发框架/库使用Rollup
+
+##### 9、 Parcel 零配置的前端应用打包器
+
+安装Parcel：`yarn add parcel-bundler --dev`
+
+./src/index.html  Parcel中的入口文件是HTML文件
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcel Test</title>
+</head>
+<body>
+  <script src="./main.js"></script>
+</body>
+</html>
+```
+
+./src/main.js
+
+```js
+// import $ from 'jquery' // 自动安装依赖
+import foo from './foo'
+import './style.css'
+import img from './1.png'
+foo.bar()
+
+// 动态导入，自动拆分模块
+import('jquery').then($=>{
+  $(document.body).append('<h1>Hello</h1>')
+  $(document.body).append(`<img src="${img}" />`)
+})
+
+if(module.hot) {
+  module.hot.accept(() => {
+    console.log('hmr') // 模块热替换
+  })
+}
+```
+
+./src/foo.js
+
+```js
+export default {
+  bar: () => {
+    console.log('bar')
+  }
+}
+```
+
+./src/style.css
+
+```css
+body {
+  background-color: pink;
+}
+```
+
+./src/1.png
+
+执行命令：`yarn parcel src/index.html` 会自动启动一个http服务，并且监听文件的变化，自动开启了模块热替换功能，依赖文件也是自动安装，整个过程都是零配置。
+
+如何以生产模式进行打包：`yarn parcel build src/index.html`
+
+对于相同体量的项目进行打包，Parcel会比Webpack快很多，因为在Parcel内部使用的是多进程同时去工作，充分发挥了多核CPU的性能，而Webpack中可以使用happypack插件实现这一点。
+
+Parcel首个版本发布于2017年，当时Webpack使用上过于繁琐。Parcel真正意义上实现了完全零配置，而且Parcel构建速度更快。
+
+而现在大多数项目还是使用Webpack作为打包器，可能是因为Webpack有更好的生态、Webpack越来越好用。
+
+
+## 规范化标准
+
+为什么要有规范化标准
+
++ 软件开发需要多人协同
++ 不同开发者具有不同的编码习惯和喜好
++ 不同的喜好增加项目维护成本
++ 每个项目或者团队需要明确统一的标准
+
+哪里需要规范化标准
+
++ 代码、文档、甚至是提交日志
++ 开发过程中人为编写的成果图
++ 代码标准化规范最为重要
+
+实施规范化的方法
+
++ 编码前人为的标准约定
++ 通过工具实现Lint
+
+常见的规范化实现方式
+
++ ESLint 工具使用
++ 定制ESLint校验规则
++ ESLint对TypeScript的支持
++ ESLint结合自动化工具或者Webpack
++ 基于ESLint的衍生工具
++ StyleLint工具的使用
+
+### 一、ESLint
+
+#### 1. ESLint介绍
+
++ 最为主流的JavaScript Lint工具，检测JS代码质量
++ ESLint很容易统一开发者的编码风格
++ ESLint可以帮助开发者提升编码能力
+
+#### 2. ESLInt安装
+
++ 初始化项目: `yarn init -y`
++ 安装ESLint模块为开发依赖: `yarn add eslint --dev`
++ 通过CLI命令验证安装结果：`yarn eslint -v`
+
+#### 3. ESLint 检查步骤
+
++ 编写“问题”代码
++ 使用eslint执行检测 : 执行`yarn eslint 01-prepare.js`，执行自动修复`yarn eslint 01-prepare.js --fix`
++ 完成eslint使用配置 : `yarn eslint --init`
+
+#### 4. ESLint配置文件解析
+
+```js
+module.exports = {
+  env: {
+    // 运行的环境，决定了有哪些默认全局变量
+    browser: true,
+    es2020: true
+  },
+  // eslint 继承的共享配置
+  extends: [
+    'standard'
+  ],
+  // 设置语法解析器，控制是否允许使用某个版本的语法
+  parserOptions: {
+    ecmaVersion: 11
+  },
+  // 控制某个校验规则的开启和关闭
+  rules: {
+    'no-alert': 'error'
+  },
+  // 添加自定义的全局变量
+  globals: {
+    "$": 'readonly', 
+  }
+}
+```
+
+#### 5. ESLint配置注释
+
+将配置写在代码的注释中，然后再对代码进行校验
+
+```js
+const str1 = "${name} is coder" // eslint-disable-line no-template-curly-in-string
+
+console.log(str1)
+```
+
+#### 6. ESLint 结合自动化工具
+
++ 集成之后，ESLint一定会工作
++ 与项目统一，管理更加方便
+
+#### 7. ESLint结合Webpack
+
+eslint通过loader形式校验JavaScript代码
+
+前置工作：
+
++ git clone 仓库
++ 安装对应模块
++ 安装eslint模块
++ 安装eslint-loader模块
++ 初始化.eslintrc.js配置文件
+
+后续配置：
+
+```js
+reles: {
+  'react/jsx-uses-react': 2
+},
+  plugins: [
+    'react'
+  ]
+```
+
+#### 8 现代化项目集成ESLint
+
+#### 9 ESLint检查TypeScript
+
+### 二、StyleLint
+
+#### 1. StyleLint使用介绍
+
++ 提供默认的代码检查规则
++ 提供CLI工具，快速调用
++ 通过插件支持Sass、Less、PostCSS
++ 支持Gulp或者Webpack集成
+
+`npm install stylelint --dev`
+
+`npx stylelint ./index.css`
+
+`npm install stylelint-config-sass-guidelines`
+
+.stylelintrc.js
+
+```js
+module.exports = {
+  extends: [
+    "stylelint-config-standard",
+    "stylelint-config-sass-guidelines"
+  ]
+}
+```
+
+运行：`npx stylelint ./index.css`
+
+### 三、Prettier 的使用
+
+近两年流行的前端代码通用型格式化工具，几乎可以完成各种代码的格式化。
+
+`yarn add prettier --dev`安装prettier到当前项目
+
+`yarn prettier style.css`将格式化的结果输出到命令行
+
+`yarn prettier style.css --write` 将格式化的结果覆盖原文件
+
+`yarn prettier . --write`对当前整个项目进行格式化
+
+### 四、Git Hooks 介绍
+
+代码提交至仓库之前为执行lint工作
+
++ Git Hook也称为Git钩子，每个钩子都对应一个任务
++ 通过shell脚本可以编写钩子任务出发时要具体执行的操作
+
+在一个Git仓库中，进入`.git/hooks`目录，然后看到很多sample文件，执行`cp pre-commit.sample pre-commit`,拷贝了一份pre-commit文件出来，把里面的内容先去掉，就写一句简单的echo看看Git钩子的效果(第一行是可执行文件必须要有的固定语法，不可以删除)
+
+```bash
+#!/bin/sh
+echo "git hooks"
+```
+
+然后回到仓库根目录，执行`git add .`,`git commit -m"xx"`
+
+就可以看到输出了git hooks，说明pre-commit这个钩子已经生效了
+
+#### 五、ESLint结合Git Hooks
+
+很多前端开发者并不擅长使用shell，Husky可以实现Git Hooks的使用需求
+
+在已有了eslint的Git项目中，安装husky，实现在Git commit的时候，进行lint
+
+`yarn add husky --dev`
+
+package.json
+
+```json
+{
+  "name": "GitHooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "test": "eslint ./index.js"
+  },
+  "devDependencies": {
+    "eslint": "^7.3.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn test"
+    }
+  }
+}
+
+```
+
+然后执行
+
+` echo node_modules > .gitignore`
+
+ `git add .`
+
+`git commit -m "husky"`
+
+可以看到我们的index.js的代码报错被输出到控制台了，并且Git commit失败了。
+
+说明husky已经完成了在代码提交前的lint工作。不过husky并不能对代码进行格式化，此时可以使用lint-stage
+
+`yarn add lint-staged --dev`
+
+package.json
+
+```json
+{
+  "name": "GitHooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "test": "eslint ./index.js",
+    "precommit": "lint-staged"
+  },
+  "devDependencies": {
+    "eslint": "^7.3.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn precommit"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint",
+      "git add"
+    ]
+  }
+}
+
+```
+
+
+
 
 
 
