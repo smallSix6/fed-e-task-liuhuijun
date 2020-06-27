@@ -116,11 +116,11 @@ module.exports = {
         }),
         new webpack.HotModuleReplacementPlugin(),
         // 开发阶段最好不要使用这个插件
-        // new CopyWebpackPlugin({
-        //     patterns: [
-        //         { from: 'public', to: 'public' },
-        //     ],
-        // }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'public', to: 'public' },
+            ],
+        }),
         // new Myplugin()
     ]
 }
