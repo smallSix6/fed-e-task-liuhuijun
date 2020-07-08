@@ -28,6 +28,7 @@ class Observer {
                 return val
             },
             set(newValue) {
+                console.log(newValue, '>>>>>', val)
                 if (newValue === val) {
                     return
                 }
