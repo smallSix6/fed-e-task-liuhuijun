@@ -1,8 +1,10 @@
 diff算法的核心21节
 
+# 刘惠俊 Part2 模块三 手写 Vue Router、手写响应式实现、虚拟 DOM 和 Diff 算法 作业
 
-一、简答题
-1、当我们点击按钮的时候动态给 data 增加的成员是否是响应式数据，如果不是的话，如果把新增成员设置成响应式数据，它的内部原理是什么。
+## 一、简答题
+
+### 1、当我们点击按钮的时候动态给 data 增加的成员是否是响应式数据，如果不是的话，如果把新增成员设置成响应式数据，它的内部原理是什么。
 ```js
 let vm = new Vue({
  el: '#el'
@@ -38,7 +40,7 @@ let vm = new Vue({
           }
       })
       ```
-      原因：vm[key] set 操作的时候会触发 data[key] 的 set 操作，data[key] 的 set 操作会 walk 这个新的值（walk方法是给data里的对象类型的值设置响应式），而题目中的 data 的 dog 是个空对象，没有任何属性，所以初始化 Vue 实例的时候，在给 dog 设置 proxy 的时候没有任何属性有 getter 和 setter 方法，所以在点击按钮动态的给 dog 添加 name 属性，并设置值的时候是不会触发 dog 对象下的属性 name 的 setter 方法，故不是响应式数据。而给 dog 对象添加了 name 的初始值后，dog 对象的 name 属性就有了 getter 和 setter 方法，故可以实现响应式。
+      + 原因：vm[key] set 操作的时候会触发 data[key] 的 set 操作，data[key] 的 set 操作会 walk 这个新的值（walk方法是给data里的对象类型的值设置响应式），而题目中的 data 的 dog 是个空对象，没有任何属性，所以初始化 Vue 实例的时候，在给 dog 设置 proxy 的时候没有任何属性有 getter 和 setter 方法，所以在点击按钮动态的给 dog 添加 name 属性，并设置值的时候是不会触发 dog 对象下的属性 name 的 setter 方法，故不是响应式数据。而给 dog 对象添加了 name 的初始值后，dog 对象的 name 属性就有了 getter 和 setter 方法，故可以实现响应式。
     + 2、使用 Vue.set(target, key, value) 时，target 为需要添加属性的对象，key 是要添加的属性名，value 为属性 key 对应的值, vue 中 set 的源码如下：
       ```js
       export function set (target: Array<any> | Object, key: any, val: any): any {
@@ -100,7 +102,109 @@ let vm = new Vue({
 
 
 
-2、请简述 Diff 算法的执行过程
+### 2、请简述 Diff 算法的执行过程
++ 答：
+  + diff 的过程就是调用名为 patch 的函数，比较新旧节点，一边比较一边给真实的 DOM 打补丁。
+  + patch 函数接收两个参数 oldVnode 和 Vnode 分别代表新的节点和之前的旧节点,这个函数会比较 oldVnode 和 vnode 是否是相同的, 即函数 sameVnode(oldVnode, vnode), 根据这个函数的返回结果分如下两种情况：
+    + true：则执行 patchVnode
+    + false：则用 vnode 替换 oldVnode
+  + patchVnode 这个函数做了以下事情：
+    + 找到对应的真实 dom，称为 el
+    + 判断 vnode 和 oldVnode 是否指向同一个对象，如果是，那么直接 return
+    + 如果他们都有文本节点并且不相等，那么将 el 的文本节点设置为 vnode 的文本节点。
+    + 如果 oldVnode 有子节点而 vnode 没有，则删除 el 的子节点
+    + 如果 oldVnode 没有子节点而 vnode 有，则将 vnode 的子节点真实化之后添加到 el
+    + 如果两者都有子节点，则执行 updateChildren 函数比较子节点，这一步很重要
+  + 其他几个点都很好理解，我们详细来讲一下updateChildren，代码如下：
+    ```js
+    updateChildren (parentElm, oldCh, newCh) {
+        let oldStartIdx = 0, newStartIdx = 0
+        let oldEndIdx = oldCh.length - 1
+        let oldStartVnode = oldCh[0]
+        let oldEndVnode = oldCh[oldEndIdx]
+        let newEndIdx = newCh.length - 1
+        let newStartVnode = newCh[0]
+        let newEndVnode = newCh[newEndIdx]
+        let oldKeyToIdx
+        let idxInOld
+        let elmToMove
+        let before
+        while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+            if (oldStartVnode == null) {   // 对于vnode.key的比较，会把oldVnode = null
+                oldStartVnode = oldCh[++oldStartIdx] 
+            }else if (oldEndVnode == null) {
+                oldEndVnode = oldCh[--oldEndIdx]
+            }else if (newStartVnode == null) {
+                newStartVnode = newCh[++newStartIdx]
+            }else if (newEndVnode == null) {
+                newEndVnode = newCh[--newEndIdx]
+            }else if (sameVnode(oldStartVnode, newStartVnode)) {
+                patchVnode(oldStartVnode, newStartVnode)
+                oldStartVnode = oldCh[++oldStartIdx]
+                newStartVnode = newCh[++newStartIdx]
+            }else if (sameVnode(oldEndVnode, newEndVnode)) {
+                patchVnode(oldEndVnode, newEndVnode)
+                oldEndVnode = oldCh[--oldEndIdx]
+                newEndVnode = newCh[--newEndIdx]
+            }else if (sameVnode(oldStartVnode, newEndVnode)) {
+                patchVnode(oldStartVnode, newEndVnode)
+                api.insertBefore(parentElm, oldStartVnode.el, api.nextSibling(oldEndVnode.el))
+                oldStartVnode = oldCh[++oldStartIdx]
+                newEndVnode = newCh[--newEndIdx]
+            }else if (sameVnode(oldEndVnode, newStartVnode)) {
+                patchVnode(oldEndVnode, newStartVnode)
+                api.insertBefore(parentElm, oldEndVnode.el, oldStartVnode.el)
+                oldEndVnode = oldCh[--oldEndIdx]
+                newStartVnode = newCh[++newStartIdx]
+            }else {
+              // 使用key时的比较
+                if (oldKeyToIdx === undefined) {
+                    oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx) // 有key生成index表
+                }
+                idxInOld = oldKeyToIdx[newStartVnode.key]
+                if (!idxInOld) {
+                    api.insertBefore(parentElm, createEle(newStartVnode).el, oldStartVnode.el)
+                    newStartVnode = newCh[++newStartIdx]
+                }
+                else {
+                    elmToMove = oldCh[idxInOld]
+                    if (elmToMove.sel !== newStartVnode.sel) {
+                        api.insertBefore(parentElm, createEle(newStartVnode).el, oldStartVnode.el)
+                    }else {
+                        patchVnode(elmToMove, newStartVnode)
+                        oldCh[idxInOld] = null
+                        api.insertBefore(parentElm, elmToMove.el, oldStartVnode.el)
+                    }
+                    newStartVnode = newCh[++newStartIdx]
+                }
+            }
+        }
+        if (oldStartIdx > oldEndIdx) {
+            before = newCh[newEndIdx + 1] == null ? null : newCh[newEndIdx + 1].el
+            addVnodes(parentElm, before, newCh, newStartIdx, newEndIdx)
+        }else if (newStartIdx > newEndIdx) {
+            removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx)
+        }
+    }
+    ```
+    + 首先介绍下这个函数中的变量定义：
+      + （oldStartIdx = 0）：oldVnode 的 startIdx, 初始值为 0
+      + （newStartIdx = 0）：vnode 的 startIdx, 初始值为 0
+      + （oldEndIdx = oldCh.length - 1）：oldVnode 的 endIdx, 初始值为 oldCh.length - 1
+      + （oldStartVnode = oldCh[0]）：oldVnode 的初始开始节点
+      + （oldEndVnode = oldCh[oldEndIdx]）：oldVnode 的初始结束节点
+      + （newEndIdx = newCh.length - 1）：vnode 的 endIdx, 初始值为 newCh.length - 1
+      + （newStartVnode = newCh[0]）：vnode 的初始开始节点
+      + （newEndVnode = newCh[newEndIdx]）：vnode 的初始结束节点
+
+
+
+
+
+
+
+
+
  
 
 二、编程题
