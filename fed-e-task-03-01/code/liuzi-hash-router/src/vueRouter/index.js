@@ -47,7 +47,7 @@ export default class VueRouter {
                 render(h) {
                     return h('a', {
                         attrs: {
-                            href: this.to
+                            href: '#' + this.to
                         },
                         on: {
                             click: this.clickHandler
@@ -56,7 +56,7 @@ export default class VueRouter {
                 },
                 methods: {
                     clickHandler(e) {
-                        history.pushState({}, '', this.to)
+                        window.location.hash = '#' + this.to
                         this.$router.data.current = this.to
                         e.preventDefault()
                     }
@@ -74,8 +74,14 @@ export default class VueRouter {
     }
 
     initEvent() {
-        window.addEventListener('popstate', () => {
-            this.data.current = window.location.pathname
-        })
+        window.addEventListener('load', this.hashChange.bind(this))
+        window.addEventListener('hashchange', this.hashChange.bind(this))
+    }
+    hashChange() {
+        if (!window.location.hash) {
+            window.location.hash = '#/'
+        }
+        this.data.current = window.location.hash.substr(1)
+
     }
 }

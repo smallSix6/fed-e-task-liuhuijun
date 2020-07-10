@@ -207,6 +207,152 @@
           [0, 1, 0, 0],
           [0, 0, 1, 0]]
       ```
+  + tf.ones (shape, dtype?)
+    + 创建一个所有元素都设置为1 的 tf.Tensor。
+    + 参数：
+      + shape （number []） 定义输出张量形状的整数数组。
+      + dtype （'float32'|'int32'|'bool'|'complex64'|'string'） 所得张量中元素的类型。默认为“浮动”。 可选的
+    + 返回值： tf.Tensor
+    + 代码示例：
+      ```js
+      tf.ones([2, 2]).print();
+      /* Tensor
+          [[1, 1],
+          [1, 1]]
+      */
+      ```
+  + tf.onesLike（x）
+    + 创建一个 tf.Tensor，将所有元素设置为1，其形状与给定张量相同。
+    + 参数：
+    + x (tf.Tensor|TypedArray|Array) 张量.
+    + 返回值： tf.Tensor
+    + 代码示例：
+      ```js
+      const x = tf.tensor([1, 2]);
+      tf.onesLike(x).print();
+      /* Tensor
+            [1, 1]
+      */
+      ```   
+  + tf.print (x, verbose?)
+    + 打印有关tf.Tensor的信息，包括其数据。
+    + 参数：
+      + x (tf.Tensor) 要打印的张量。
+      + verbose （布尔值） 是否打印有关的详细信息Tensor，包括dtype和size。 可选的
+    + 返回： void
+    + 代码示例：
+      ```js
+      const verbose = true;
+      tf.tensor2d([1, 2, 3, 4], [2, 2]).print(verbose);
+      /* 
+      Tensor
+        dtype: float32
+        rank: 2
+        shape: [2,2]
+        values:
+          [[1, 2],
+          [3, 4]]
+      */
+      ```
+  + tf.range (start, stop, step?, dtype?)
+    + 创建一个新的 tf.Tensor1D，其中填充了提供的范围内的数字。张量是一个半开间隔，表示它包括开始，但不包括停止。还支持递减范围和负步进值。
+    + 参数：
+      + start （number） 整数起始值
+      + stop （number） 一个整数停止值
+      + step （number） 整数增量（默认为1或-1） 可选
+      + dtype （'float32'|'int32'） 输出张量的数据类型。默认为'float32'。 可选的
+    + 返回值： tf.Tensor1D
+    + 代码示例：
+      ```js
+      tf.range(0, 9, 2).print();
+      /* 
+      Tensor
+        [0, 2, 4, 6, 8]
+      */
+  + tf.real（input）
+    + 返回复数（或实数）张量的实部。给定张量输入，此操作将返回 float 类型的张量，该张量是输入中每个元素的实数部分，被视为复数。如果输入是 real 的，则仅进行克隆
+    + 参数：
+      + input (tf.Tensor|TypedArray|Array)
+    + 返回值： tf.Tensor
+    + 代码示例：
+      ```js
+      const x = tf.complex([-2.25, 3.25], [4.75, 5.75]);
+      tf.real(x).print();
+      /* 
+      Tensor
+        [-2.25, 3.25]
+      */
+  + tf.truncatedNormal (shape, mean?, stdDev?, dtype?, seed?)
+    + 创建一个 tf.Tensor，其值从截断的正态分布中采样。生成的值遵循具有指定均值和标准偏差的正态分布，不同之处在于，将丢弃幅度大于均值2个标准差的值并重新选择。产生截断正态分布随机数，取值范围为 [ mean - 2 * stddev, mean + 2 * stddev ]
+    + 参数：
+      + shape （number []） 定义输出张量形状的整数数组。
+      + mean （number） 正态分布的平均值,默认为 0.0。 可选的
+      + stdDev （number） 正态分布的标准偏差，默认为 1.0。 可选的
+      + dtype （'float32'|'int32'） 输出张量的数据类型。 可选的
+      + seed （number） 随机数生成器的种子。 可选的
+    + 返回值： tf.Tensor
+    + 代码示例：
+      ```js
+      tf.truncatedNormal([2, 2]).print();
+      /* 
+        Tensor
+          [[0.3969676，-0.3903245]，[1.1683369，-0.3209883]]
+      */
+      ```
+  + tf.variable (initialValue, trainable?, name?, dtype?)
+    + 使用提供的初始值创建一个新变量。
+    + 参数：
+      + initialValue (tf.Tensor) 张量的初始值。
+      + trainable （布尔值） 如果为 true，则允许优化器对其进行更新。 可选的
+      + name （字符串） 变量的名称。默认为唯一ID。 可选的
+      + dtype （'float32'|'int32'|'bool'|'complex64'|'string'） 如果设置，则 initialValue 将转换为给定类型。 可选的
+    + 返回： tf.Variable
+    + 代码示例：
+      ```js
+      const x = tf.variable(tf.tensor([1, 2, 3]));
+      x.assign(tf.tensor([4, 5, 6]));
+      x.print();
+      /* 
+        Tensor
+          [4，5，6]
+      */
+      ```
+  + tf.zeros (shape, dtype?)
+    + 创建所有元素都设置为0 的 tf.Tensor。
+    + 参数：
+      + shape （number []） 定义输出张量形状的整数数组。
+      + dtype （'float32'|'int32'|'bool'|'complex64'|'string'） 所得张量中元素的类型。可以是'float32'，'int32'或'bool'。默认为“浮动”。 可选的
+    + 返回值： tf.Tensor
+    + 代码示例：
+      ```js
+      tf.zeros([2, 2]).print();
+      /* 
+        Tensor
+          [[0, 0],  
+            [0, 0]]
+      */
+      ```
+  + tf.zerosLike (x)
+    + 创建一个 tf.Tensor，将所有元素设置为0，并具有与给定张量相同的形状。
+    + 参数：
+      + x (tf.Tensor|TypedArray|Array) 所需形状的张量。
+    + 返回值： tf.Tensor
+    + 代码示例
+      ```js
+      const x = tf.tensor([1, 2]);
+      tf.zerosLike(x).print();
+      /* 
+      Tensor
+          [0, 0]
+      */
+      ```
+
+### 2、Classes：本部分显示TensorFlow.js中与Tensor相关的主要类以及我们在其上公开的方法。
+
+### 3、Transformations：本部分描述了一些用于重塑和类型转换的常见Tensor转换。
+
+
+
 
 
 ## part二、Models
