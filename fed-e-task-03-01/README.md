@@ -460,7 +460,7 @@ let vm = new Vue({
     + 在 constructor 中我们会接收传过来的参数 options 并保存在实例中。在这儿有个需要注意的点，我们使用了 Vue.observable 方法使 current 变为响应式对象，这样在 current 变化的时候会重新渲染依赖 current 变量的组件，如本例中依赖 current 变量的 router-view 组件。
 
 ### 2、在模拟 Vue.js 响应式源码的基础上实现 v-html 指令，以及 v-on 指令
-+ 答：指令解析的代码如下(完整代码见https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-01/code/liuzi-minVue)：
++ 答：指令解析的代码如下(完整代码见 <https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-01/code/liuzi-minVue> )：
   + vue/vue.js
     ```js
       class Vue {
@@ -690,7 +690,7 @@ let vm = new Vue({
     + eventUpdate 调用 onUpdater 来处理 v-on 指令
 
 3、参考 Snabbdom 提供的电影列表的示例，实现类似的效果.
-+ 答：指令解析的代码如下(完整代码见https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-01/code/snabbdom)：
++ 答：指令解析的代码如下(完整代码见 <https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-01/code/snabbdom> )：
 + snabbdom/package.json
 ```js
 {
