@@ -689,7 +689,7 @@ let vm = new Vue({
     + 如果找到属性名是以 on 开头的，则 调用 this.eventUpdate(node, key, event)
     + eventUpdate 调用 onUpdater 来处理 v-on 指令
 
-3、参考 Snabbdom 提供的电影列表的示例，实现类似的效果.
+### 3、参考 Snabbdom 提供的电影列表的示例，实现类似的效果.
 + 答：指令解析的代码如下(完整代码见 <https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-01/code/snabbdom> )：
 + snabbdom/package.json
 ```js
