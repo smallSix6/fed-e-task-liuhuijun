@@ -385,3 +385,6 @@ export function h(sel: any, b?: any, c?: any): VNode {
   + ![avatar](../images/diff.png)
 
 
+
+## 问题：
++ 知道了 diff 算法的过程，没理解 diff 算法的精髓（与普通的按顺序比较，diff 的具体优势，老师能讲讲吗？）
