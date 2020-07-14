@@ -274,6 +274,6 @@
   + 从 validateComponentName 分析得出组件的命名规范应该满足一下的要求:
     + /^[a-zA-Z][-.0-9_/.test(name) 为 true
     + isBuiltInTag(name) 或者 config.isReservedTag(name) 为 false
-** Vue 选项的合并 ** 
+  +  #### Vue 选项的合并  
 
 
