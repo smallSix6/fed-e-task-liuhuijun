@@ -1093,7 +1093,7 @@ const vm = new Vue({
 console.log(vm)
 ```
 + 在控制打印 vm 时，可以看到这两个属性：$parent，$children
-+ ![]('../images/initLifecycle.jpg')
++ ![](../images/initLifecycle.jpg)
 
 
 
