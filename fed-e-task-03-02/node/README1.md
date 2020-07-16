@@ -1,4 +1,4 @@
-## 准备工作
+## 0、准备工作
   + 1、从GitHub上面下载vue的源码（https://github.com/vuejs/vue）
   + 2、了解下Flow,Flow 是 facebook 出品的 JavaScript 静态类型检查工具。Vue.js 的源码利用了 Flow 做了静态类型检查
   + 3、vue.js 源码目录设计,vue.js的源码都在 src 目录下(\vue-dev\src)
@@ -18,7 +18,7 @@
       + 4.3 update:更新---当数据发生变化后，更新DOM。
       + 4.4 destory:销毁---销毁时执行
 
-## new Vue()发生了什么
+## 1、new Vue()发生了什么
   + 在 vue 的生命周期上第一个就是 new Vue() 创建一个 vue 实例出来，对应到源码在 /vue-dev/srv/core/instance/index.js
   ```js
   import { initMixin } from './init'
@@ -117,7 +117,7 @@
     + 最重要的事情 mergeOptions() 函数, 进行选项的合并和规范化
     + 初始化页面, 初始化事件, 渲染页面, 初始化 data、props、computed、watcher 等等
 
-## mergeOptions选项合并策略
+## 2、mergeOptions 选项合并策略
   + mergeOptions的主要作用:
     + 对 options 进行规范
     + options 的合并, 默认策略和自定义策略
@@ -323,7 +323,7 @@
 
 
 
-## 选项 data 的合并策略
+## 3、选项 data 的合并策略
   + 在 vue.js 源码中，选项 el, data, watch, props 等都有合并策略
   + 在这一节中，只分析 data 的合并策略
   ```js
@@ -468,7 +468,7 @@
 
 
 
-## 生命周期钩子函数，资源 assets 选项合并策略
+## 4、生命周期钩子函数，资源 assets 选项合并策略
   + **生命周期钩子函数的合并策略**
   + 在 Vue.js 中的生命周期钩子：
     ```js
@@ -679,5 +679,424 @@
     return ret
     ```
   + 最终如果父子选项 watch 监听存在相同的字段，那么他们会被合并到一个数组里面，数据的变化进行统一的遍历，不相同的字段会单独处理
+
+
+## 5、Vue.js 选项合并和规范化 ———— props directives 规范 &props methods inject computed 合并策略
+  + props 规范化
+    + 在平时开发中，props 传递属性可以动态传递和静态传递
+      ```js
+      /*静态检测*/
+      props:["message"]
+      /*动态检测*/
+      props:{
+          message:{
+              type:String
+              default:"Vue"
+          }
+      }
+      ```
+    + 初始化过程，在 mergeOptions 函数里面，可以看到对 props 的规范检测，进行统一的规范化处理
+    ```js
+    normalizeProps(child, vm)
+    ```
+    + 接下来分析源码实现
+    ```js
+    /**
+    * Ensure all props option syntax are normalized into the
+    * Object-based format.
+    */
+    function normalizeProps(options, vm) {
+        var props = options.props;
+        /*没有 props 直接返回*/
+        if (!props) {
+            return
+        }
+        var res = {};
+        var i, val, name;
+        if (Array.isArray(props)) {
+            i = props.length;
+            while (i--) {
+                val = props[i];
+                if (typeof val === 'string') {
+                    name = camelize(val);
+                    res[name] = {type: null};
+                } else {
+                    warn('props must be strings when using array syntax.');
+                }
+            }
+        } else if (isPlainObject(props)) {
+            for (var key in props) {
+                val = props[key];
+                name = camelize(key);
+                res[name] = isPlainObject(val)
+                    ? val
+                    : {type: val};
+            }
+        } else {
+            warn(
+                "Invalid value for option \"props\": expected an Array or an Object, " +
+                "but got " + (toRawType(props)) + ".",
+                vm
+            );
+        }
+        options.props = res;
+    }
+    ```
+    + normalizeProps 这个函数的作用是：将 props 规范到对象。在这个函数中主要做了以下几件事情：
+      + 没有传递 props，就直接返回
+      + 对 props 是数组类型的处理
+      + props 是原生的对象的处理
+      + 如果传递的既不是数组也不是对象，发出报错警告
+      + 1、props 是数组
+        ```js
+        /*要最终处理完返回的对象*/
+        var res = {};
+        var i, val, name;
+        /* 检测是否是一个数组 */
+        if (Array.isArray(props)) {
+            /*获取 props 长度*/
+            i = props.length;
+            while (i--) {
+                val = props[i];
+                /*在 props 是数组的情况下, 判断每个值是否是字符串 */
+                if (typeof val === 'string') {
+                    /*将中横线 -  变为驼峰字符*/
+                    name = camelize(val);
+                    /* 将该项转换为对象, type 为 null */
+                    res[name] = {type: null};
+                } else {
+                    /*在数组的情况下只能是字符串*/
+                    warn('props must be strings when using array syntax.');
+                }
+            }
+        }
+        ```
+        + 在 props 是数组的情况下，数组里面的每一项只能是字符串。最终将数据数组里面的每一项字符串转为对象。例如：
+        ```js
+        props: ['message']
+        ```
+        + 转换后：
+        ```js
+        props:{
+          messsage:{
+              type:null  /*可以看做是任意类型*/
+          }
+        }
+        ```
+      + 2、props 是对象：
+        ```js
+        if (isPlainObject(props)) {
+          for (var key in props) {
+              val = props[key]; /*获取到 key 对应的 val */
+                /*将中横线 - 转为了驼峰*/
+              name = camelize(key);
+              /*检测是 val 是否是原生的对象, 是, 就直接把 val 赋值给 res[name] */
+              res[name] = isPlainObject(val)
+                  ? val
+                  : {type: val};
+          }
+        }
+        ```
+        + 最终将 props 统一为对象
+        + camelize 函数的作用是把带有中横线 props 命名转为驼峰命名
+        ```js
+        var camelizeRE = /-(\w)/g;
+        var camelize = cached(function (str) {
+            return str.replace(camelizeRE, function (_, c) {
+                return c ? c.toUpperCase() : '';
+            })
+        });
+        ```
+        + 看下官网的示例代码：
+        ```js
+        Vue.component('blog-post', {
+            // 在 JavaScript 中是 camelCase 的
+            props: ['postTitle'],
+            template: '<h3>{{ postTitle }}</h3>'
+        })
+
+        <!-- 在 HTML 中是 kebab-case 的 -->
+        <blog-post post-title="hello!"></blog-post>
+        ```
+        + 在 HTML 中 post-title 可以带中横线（推荐这种写法，符合 HTML 属性规范），在 props 规范化中，将中横线替换掉，变成驼峰的方式
+
+
+
+
+
+
+
+  + directives 规范化
+    + 在我们定义指令的时候，可以有不同的写法
+    ```js
+    let p = Vue.extend({
+      directive:{
+          test1:{  /*钩子函数*/
+              bind:function () {
+                  console.log("v-test1")
+              }
+          },
+          test2:function () {  /*简写*/
+              console.log("v-test1")
+          }
+      }
+    })
+    ```
+    + 在 mergeOptions 中，会调用 normalizeDirectives(child) 将不同的写法进行统一的规范化
+    + 接下来在源码中是如何规范的
+    ```js
+    /**
+    * Normalize raw function directives into object format.
+    */
+    function normalizeDirectives(options) {
+        var dirs = options.directives;
+        if (dirs) {
+            for (var key in dirs) {
+                var def$$1 = dirs[key];
+                if (typeof def$$1 === 'function') {
+                    dirs[key] = {bind: def$$1, update: def$$1};
+                }
+            }
+        }
+    }
+    ```
+    + 从上面可以看出，指令的简写方式，最终会转为对象形式存在。作为 bind 和 update 的函数
+
+
+  + props methods inject computed 合并策略
+    + 源码的实现
+    ```js
+    strats.props =
+        strats.methods =
+            strats.inject =
+                strats.computed = function (
+                    parentVal,
+                    childVal,
+                    vm,
+                    key
+                ) {
+                    if (childVal && "development" !== 'production') {
+                        assertObjectType(key, childVal, vm);
+                    }
+                    /*检测 parentVal 是否存在, 不存在,直接把 childVal 返回, 不用合并*/
+                    if (!parentVal) {
+                        return childVal
+                    }
+                    var ret = Object.create(null);
+                    /*把 parentVal 的属相混入 ret 中*/
+                    extend(ret, parentVal);
+                    /*如果 childVal 存在, 把 childVal 混入到 ret 中*/
+                    if (childVal) {
+                        extend(ret, childVal);
+                    }
+                    return ret
+                }
+    ```
+    + 可以看出上面的代码：先把 parentVal 混入到 ret 中，在把 childVal 混入到 ret 中。如果键值一样，就直接覆盖
+## 6、Vue.js 初始化过程 ———— initProxy ——渲染函数的作用与代理  
+  + 在 vm._init() 函数的初始化过程中调用了 initProxy 函数，以下是 initProxy 函数的源码
+  ```js
+  initProxy = function initProxy(vm) {
+    /* hasProxy 判断当前环境是否支持 es 提供的 Proxy */
+    if (hasProxy) {
+      // determine which proxy handler to use
+      var options = vm.$options;
+      /*不同条件返回不同的 handlers, getHandler 或者h asHandler */
+      var handlers = options.render && options.render._withStripped
+          ? getHandler
+          : hasHandler;
+      /* 代理 vm 实例 */
+      vm._renderProxy = new Proxy(vm, handlers);
+    } else {
+      vm._renderProxy = vm;
+    }
+  };
+  ```
+  + initProxy 函数的主要目的：通过 vm._renderProxy 代理 vm 实例，根据不同的条件，生成 Proxy 的 handlers 拦截行为 vm._renderProxy 在 render 函数被调用的时候，当做参数被传递进入
+  ```js
+  vnode = render.call(vm._renderProxy, vm.$createElement)
+  ```
+  + render 使用 call 调用，上下文为 vm._renderProxy，这部分会在后面的小节讲到
+  + 先看看 hasProxy 的实现：
+  ```js
+  /* hasProxy 的实现*/
+  var hasProxy = typeof Proxy !== 'undefined' && isNative(Proxy);
+
+  /* isNative 的实现 */
+  function isNative(Ctor) {
+      return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
+  }
+  ```
+  + hasProxy 主要的作用就是检测 es6 的 Proxy 是否支持。如果支持 Proxy，通过 isNative 检测是否是 native code 提供的 Proxy，这样检测的目的是：我们自己定义的变量 Proxy 会返回 false
+  + 通过 isNative 函数，可以学习到如何检测一个函数是自己定义的还是 native code
+  + 接下来分析后面的代码，在 native code 下的 Proxy:
+  ```js
+  if (hasProxy) {
+      // determine which proxy handler to use
+      var options = vm.$options;
+      var handlers = options.render && options.render._withStripped
+        ? getHandler
+        : hasHandler;
+      vm._renderProxy = new Proxy(vm, handlers);
+  }
+  ```
+  + options.render && options.render._withStripped 从这两项是否配置, 来获取 Proxy 的拦截行为 handlers.
+    + options.render 配置渲染函数
+    + options.render._withStripped 是在测试环境下会配置此项，结合 webpack 才会出现
+  + options.render && options.render._withStripped 都支持会返回 getHandler，否则返回 hasHandler
+  + **hasHandler**
+  ```js
+  var hasHandler = {
+      /* target 要代理的对象, key 在外部操作时访问的属性*/
+      has: function has(target, key) {
+          /* key in target 返回 true 或者 false */
+          var has = key in target;
+          /*在模板引擎里面,有一些属性 vm 没有进行代理, 但是也能使用, 像 Number,Object 等*/
+          var isAllowed = allowedGlobals(key) ||
+              (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data));
+          /*在上面的 has 和 isAllowed 为 false 的情况下*/
+          if (!has && !isAllowed) {
+              if (key in target.$data) {
+                  warnReservedPrefix(target, key);
+              }
+              /* warnNonPresent 函数, 当访问属性,没有存在 vm 实例上, 会报错提示*/
+              else {
+                  warnNonPresent(target, key);
+              }
+          }
+          /* has 或者 isAllowed */
+          return has || !isAllowed
+      }
+  };
+  ```
+  + hasHandler 只配置了 hash 钩子，当进行 propKey in proxy 的时候 in 操作符 或者 with() 操作时，会触发 hash 钩子函数
+  + hasHandler 在查找 key 时，从三个方向进行查找：
+    + 代理的 target 对象，通过 in 操作符
+    + 全局对象 API allowedGlobals 函数
+    + 查找是否是渲染函数的内置方法，第一个字符以 _ 开始 typeof key === 'string' && key.charAt(0) === '_'
+  + hasHandler 首先去检测 vm 实例上是否有该属性，下面的代码是 vm 实例上可以查看到 test
+  ```js
+  new Vue({
+    el:"#app",
+    template:"<div>{{test}}</div>",
+    data:{
+        test
+    }
+  })
+  ```
+  + 如果在 vm 实例上没有找到，然后再去判断下是否是一些全局的对象，例如 Number 等，Number 是语言本身所提供的， 在模板中也可以使用
+  ```js
+  new Vue({
+    el:"#app",
+    /*Number属于语言提供的全局API*/
+    template:"<div> {{ Number(test) +1 }}</div>",
+    data:{
+        test
+    }
+  })
+  ```
+  + 在模板里使用一些全局的 API, 而全局 API 是 allowedGlobals(key) 函数帮我们收集的
+  ```js
+  var allowedGlobals = makeMap(
+    'Infinity,undefined,NaN,isFinite,isNaN,' +
+    'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' +
+    'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,' +
+    'require' // for Webpack/Browserify
+  );
+
+  /* makeMap 函数, str 参数是接受的字符串, expectsLowerCase 参数是否需要小写*/
+  function makeMap(str, expectsLowerCase ) {
+    /* 创建一个对象 */
+    var map = Object.create(null);
+    /*将字符串分割成数组*/
+    var list = str.split(',');
+    /*对数组进行遍历*/
+    for (var i = 0; i < list.length; i++) {
+        /*将每个 key 对应的值设置为 true */
+        map[list[i]] = true;
+    }
+    /*最终返回, 根据参数设置是否是需要转换大小写*/
+    return expectsLowerCase
+        ? function (val) {
+            return map[val.toLowerCase()];
+        }
+        : function (val) {
+            return map[val];
+        }
+  }
+  ```
+  + makeMap 函数的主要作用就是把这些全局的 API 转成以下的形式：
+  ```js
+  {
+      Infinity:true,
+      undefined:true
+  }
+  ```
+  + **getHandler**
+  + options.render && options.render._withStripped 都支持会返回 getHandler
+  + 当 key 在 target 时，会触发 get 钩子函数
+  ```js
+  var getHandler = {
+    get: function get(target, key) {
+        /* key 是字符串, 并且 key 不在 target 上*/
+        if (typeof key === 'string' && !(key in target)) {
+            if (key in target.$data) {
+                warnReservedPrefix(target, key);
+            }
+            else {
+                /* key 没有在实例上定义*/
+                warnNonPresent(target, key);
+            }
+        }
+        /* 直接返回 key 对应的 value */
+        return target[key]
+    }
+  };
+  ```
+  + warnNonPresent 函数：
+  ```js
+  const warnNonPresent = (target, key) => {
+      warn(
+          `Property or method "${key}" is not defined on the instance but ` +
+          'referenced during render. Make sure that this property is reactive, ' +
+          'either in the data option, or for class-based components, by ' +
+          'initializing the property. ' +
+          'See: https://vuejs.org/v2/guide/reactivity.html#Declaring-Reactive-Properties.',
+          target
+      )
+  }
+  ```
+  + warnNonPresent 会发出警告信息，当使用的 key 没有在 vm 实例的 data 中定义
+  ```js
+  new Vue({
+    el:"#app",
+    template:"<div> {{ a }}</div>",
+    data:{
+        message:"hello vue"
+    }
+  })
+  ```
+  + 使用了 a 在 data 中没有定义，会触发 warnNonPresent 函数，打印报错信息
+
+## 7、Vue.js 初始化过程 ———— initLifecycle
++ 先看个简单的小例子
+```js
+const compA = {
+    template: "<div>我是compA</div>"
+}
+const vm = new Vue({
+    el: "#app",
+    components: {
+        "comp-a": compA
+    }
+})
+console.log(vm)
+```
++ 在控制打印 vm 时，可以看到这两个属性：$parent，$children
++ ![]('../images/initLifecycle.jpg')
+
+
+
+
 
 
