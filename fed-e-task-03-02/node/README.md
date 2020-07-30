@@ -347,60 +347,62 @@ export function initMixin(Vue: Class < Component > ) {
   + 2、初始化静态成员：
     + initGlobalAPI(Vue)
   + 3、调用 _init() 方法：this._init(options) 即 Vue.prototype._init
-  ```js
-  export function initMixin(Vue: Class < Component > ) {
-      // 给 Vue 实力增加 init() 方法
-      // 合并 options 并且初始化操作
-      Vue.prototype._init = function(options ? : Object) {
-          ...
-          // 如果是 Vue 实例不需要被 observe
-          vm._isVue = true
-              // merge options
-          if (options && options._isComponent) {
-              initInternalComponent(vm, options)
-          } else {
-              vm.$options = mergeOptions(
-                  resolveConstructorOptions(vm.constructor),
-                  options || {},
-                  vm
-              )
-          }
-          /* istanbul ignore else */
-          if (process.env.NODE_ENV !== 'production') {
-              initProxy(vm)
-          } else {
-              vm._renderProxy = vm
-          }
-          // expose real self
-          vm._self = vm
-              // vm 的生命周期相关变量初始化
-              // $children/$parent/$root/$refs
-          initLifecycle(vm)
-              // vm 的事件监听初始化，父组件绑定在当前组件上的事件
-          initEvents(vm)
-              // vm 的编译 render 初始化
-              // $slot/$scopedSlots/_c/$createElement/$attrs/$listenrs
-          initRender(vm)
-              // beforeCreate 生命钩子的回调
-          callHook(vm, 'beforeCreate')
-              // 把 inject 的成员注入到 vm 上
-          initInjections(vm) // resolve injections before data/props
-              // 初始化 vm 的 _props/methods/_data/computed/watch
-          initState(vm)
-              // 初始化 provide
-          initProvide(vm) // resolve provide after data/props
-              // created 生命钩子的回调
-          callHook(vm, 'created')
-          ...
-          if (vm.$options.el) {
-              // 调用 mount 方法（重点）
-              vm.$mount(vm.$options.el)
-          }
-      }
-  }
-  ```
-    + vm.$mount 方法源码如下：
+    + Vue.prototype._init 源码文件见 src/core/instance/init.js
     ```js
+    export function initMixin(Vue: Class < Component > ) {
+        // 给 Vue 实力增加 init() 方法
+        // 合并 options 并且初始化操作
+        Vue.prototype._init = function(options ? : Object) {
+            ...
+            // 如果是 Vue 实例不需要被 observe
+            vm._isVue = true
+                // merge options
+            if (options && options._isComponent) {
+                initInternalComponent(vm, options)
+            } else {
+                vm.$options = mergeOptions(
+                    resolveConstructorOptions(vm.constructor),
+                    options || {},
+                    vm
+                )
+            }
+            /* istanbul ignore else */
+            if (process.env.NODE_ENV !== 'production') {
+                initProxy(vm)
+            } else {
+                vm._renderProxy = vm
+            }
+            // expose real self
+            vm._self = vm
+                // vm 的生命周期相关变量初始化
+                // $children/$parent/$root/$refs
+            initLifecycle(vm)
+                // vm 的事件监听初始化，父组件绑定在当前组件上的事件
+            initEvents(vm)
+                // vm 的编译 render 初始化
+                // $slot/$scopedSlots/_c/$createElement/$attrs/$listenrs
+            initRender(vm)
+                // beforeCreate 生命钩子的回调
+            callHook(vm, 'beforeCreate')
+                // 把 inject 的成员注入到 vm 上
+            initInjections(vm) // resolve injections before data/props
+                // 初始化 vm 的 _props/methods/_data/computed/watch
+            initState(vm)
+                // 初始化 provide
+            initProvide(vm) // resolve provide after data/props
+                // created 生命钩子的回调
+            callHook(vm, 'created')
+            ...
+            if (vm.$options.el) {
+                // 调用 mount 方法（重点）
+                vm.$mount(vm.$options.el)
+            }
+        }
+    }
+    ```
+    + vm.$mount (重写 $mount 方法的主要作用就是 compiler template) 方法源码如下，文件见 src/platform/web/entry-runtime-with-compiler.js ：
+    ```js
+    const mount = Vue.prototype.$mount
     Vue.prototype.$mount = function(
         el ? : string | Element,
         // 非 ssr 情况下为 false, ssr 时候为 true
@@ -454,4 +456,69 @@ export function initMixin(Vue: Class < Component > ) {
         return mount.call(this, el, hydrating)
     }
     ```
+    + Vue.prototype.$mount(这个方法在 runtime-with-compiler 的时候会被重写) 方法源码如下，文件见 src/platforms/web/runtime/index.js：
+    ```js
+    Vue.prototype.$mount = function(
+        el ? : string | Element,
+        hydrating ? : boolean
+    ): Component {
+        el = el && inBrowser ? query(el) : undefined
+        return mountComponent(this, el, hydrating)
+    }
+    ```
+    + mountComponent 方法源码如下，文件见 src/core/instance/lifecycle.js：
+    ```js
+    export function mountComponent (
+      vm: Component,
+      el: ?Element,
+      hydrating?: boolean
+    ): Component {
+      vm.$el = el
+      if (!vm.$options.render) {
+        vm.$options.render = createEmptyVNode
+      }
+      callHook(vm, 'beforeMount')
 
+      let updateComponent
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+        updateComponent = () => {
+          const name = vm._name
+          const id = vm._uid
+          const startTag = `vue-perf-start:${id}`
+          const endTag = `vue-perf-end:${id}`
+
+          mark(startTag)
+          const vnode = vm._render()
+          mark(endTag)
+          measure(`vue ${name} render`, startTag, endTag)
+
+          mark(startTag)
+          vm._update(vnode, hydrating)
+          mark(endTag)
+          measure(`vue ${name} patch`, startTag, endTag)
+        }
+      } else {
+        updateComponent = () => {
+          vm._update(vm._render(), hydrating)
+        }
+      }
+      new Watcher(vm, updateComponent, noop, {
+        before () {
+          if (vm._isMounted && !vm._isDestroyed) {
+            callHook(vm, 'beforeUpdate')
+          }
+        }
+      }, true /* isRenderWatcher */)
+      hydrating = false
+      if (vm.$vnode == null) {
+        vm._isMounted = true
+        callHook(vm, 'mounted')
+      }
+      return vm
+    }
+    ```
+
+
++ 首次渲染的流程图见：
+![](../images/首次渲染过程.png)
