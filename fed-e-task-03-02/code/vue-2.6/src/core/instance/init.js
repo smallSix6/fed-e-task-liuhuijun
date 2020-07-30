@@ -13,6 +13,8 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin(Vue: Class < Component > ) {
+    // 给 Vue 实力增加 init() 方法
+    // 合并 options 并且初始化操作
     Vue.prototype._init = function(options ? : Object) {
         const vm: Component = this
             // a uid
@@ -27,6 +29,7 @@ export function initMixin(Vue: Class < Component > ) {
         }
 
         // a flag to avoid this being observed
+        // 如果是 Vue 实例不需要被 observe
         vm._isVue = true
             // merge options
         if (options && options._isComponent) {

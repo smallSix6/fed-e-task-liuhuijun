@@ -6,6 +6,10 @@
     </div>
     <router-view />
   </div>
+<!--此处template标签必须在vue绑定的元素外面定义，并且在页面中不显示下面的template标签中的内容-->
+<template id="first">
+    <div v-if="flag">{{msg}}<div>
+    <div v-else>111<div>
 </template>
 
 <style>

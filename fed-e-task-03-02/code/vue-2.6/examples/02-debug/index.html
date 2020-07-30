@@ -8,18 +8,24 @@
 </head>
 
 <body>
-    <div id="app">Hello World</div>
+    <div id="app">{{msg}}</div>
     <script src="../../dist/vue.js"></script>
     <script>
         // 如果同时设置 template 和 render 此时会渲染什么？
+        // const vm = new Vue({
+        //     el: '#app',
+        //     template: '<h1>Hello Template</h1>',
+        //     render(h) {
+        //         return h('h1', this.msg)
+        //     },
+        //     data: {
+        //         msg: 'Hello Render'
+        //     }
+        // })
         const vm = new Vue({
             el: '#app',
-            template: '<h1>Hello Template</h1>',
-            render(h) {
-                return h('h1', this.msg)
-            },
             data: {
-                msg: 'Hello Render'
+                msg: 'Hello Vue'
             }
         })
     </script>
