@@ -1026,7 +1026,7 @@ export function initMixin(Vue: Class < Component > ) {
       this.subs.push(sub)
     }
     ```
-+ 依赖收集的流程图见 ../images/依赖收集流程.xmind
++ 依赖收集的流程图见 ./依赖收集流程.xmind
 
 #### 9、数据响应式原理——数组
 
