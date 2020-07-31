@@ -8,7 +8,11 @@
 </head>
 
 <body>
-    <div id="app">{{msg}}</div>
+    <div id="app">
+        {{msg}}
+        <div>{{count}}</div>
+    </div>
+
     <script src="../../dist/vue.js"></script>
     <script>
         // 如果同时设置 template 和 render 此时会渲染什么？
@@ -25,7 +29,8 @@
         const vm = new Vue({
             el: '#app',
             data: {
-                msg: 'Hello Vue'
+                msg: 'Hello Vue',
+                count: 100
             }
         })
     </script>
