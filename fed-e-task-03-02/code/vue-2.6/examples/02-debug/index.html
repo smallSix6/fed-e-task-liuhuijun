@@ -9,30 +9,60 @@
 
 <body>
     <div id="app">
-        {{msg}}
-        <div>{{count}}</div>
+        <p ref='p1'>{{msg}}</p>
     </div>
 
     <script src="../../dist/vue.js"></script>
     <script>
-        // 如果同时设置 template 和 render 此时会渲染什么？
-        // const vm = new Vue({
-        //     el: '#app',
-        //     template: '<h1>Hello Template</h1>',
-        //     render(h) {
-        //         return h('h1', this.msg)
-        //     },
-        //     data: {
-        //         msg: 'Hello Render'
-        //     }
-        // })
         const vm = new Vue({
-            el: '#app',
-            data: {
-                msg: 'Hello Vue',
-                count: 100
-            }
-        })
+                el: '#app',
+                data: {
+                    msg: 'Hello nextTick',
+                    name: 'Vue.js',
+                    title: 'Title'
+                },
+                mounted() {
+                    this.msg = 'Hello World'
+                    this.name = 'Hello snambdom'
+                    this.title = 'Vue.js'
+                    this.$nextTick(() => {
+                        console.log(this.$refs.p1.textContent)
+                    })
+                }
+            })
+            // 如果同时设置 template 和 render 此时会渲染什么？
+            // const vm = new Vue({
+            //     el: '#app',
+            //     template: '<h1>Hello Template</h1>',
+            //     render(h) {
+            //         return h('h1', this.msg)
+            //     },
+            //     data: {
+            //         msg: 'Hello Render'
+            //     }
+            // })
+            // const vm = new Vue({
+            //     el: '#app',
+            //     data: {
+            //         arr: [2, 3, 5]
+            //     }
+            // })
+            // const vm = new Vue({
+            //     el: '#app',
+            //     data: {
+            //         user: {
+            //             firstName: '诸葛',
+            //             lastName: '亮',
+            //             fullName: ''
+            //         }
+            //     }
+            // })
+            // vm.$watch('user', function(newValue, oldValue) {
+            //     this.user.fullName = newValue.firstName + ' ' + newValue.lastName
+            // }, {
+            //     immediate: true,
+            //     deep: true
+            // })
     </script>
 </body>
 

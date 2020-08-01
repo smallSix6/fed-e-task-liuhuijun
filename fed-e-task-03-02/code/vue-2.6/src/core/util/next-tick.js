@@ -8,13 +8,13 @@ import { isIE, isIOS, isNative } from './env'
 const callbacks = []
 let pending = false
 
-function flushCallbacks () {
-  pending = false
-  const copies = callbacks.slice(0)
-  callbacks.length = 0
-  for (let i = 0; i < copies.length; i++) {
-    copies[i]()
-  }
+function flushCallbacks() {
+    pending = false
+    const copies = callbacks.slice(0)
+    callbacks.length = 0
+    for (let i = 0; i < copies.length; i++) {
+        copies[i]()
+    }
 }
 
 // Here we have async deferring wrappers using microtasks.
@@ -38,69 +38,73 @@ let timerFunc
 // Promise is available, we will use it:
 /* istanbul ignore next, $flow-disable-line */
 if (typeof Promise !== 'undefined' && isNative(Promise)) {
-  const p = Promise.resolve()
-  timerFunc = () => {
-    p.then(flushCallbacks)
-    // In problematic UIWebViews, Promise.then doesn't completely break, but
-    // it can get stuck in a weird state where callbacks are pushed into the
-    // microtask queue but the queue isn't being flushed, until the browser
-    // needs to do some other work, e.g. handle a timer. Therefore we can
-    // "force" the microtask queue to be flushed by adding an empty timer.
-    if (isIOS) setTimeout(noop)
-  }
+    const p = Promise.resolve()
+    timerFunc = () => {
+        p.then(flushCallbacks)
+            // In problematic UIWebViews, Promise.then doesn't completely break, but
+            // it can get stuck in a weird state where callbacks are pushed into the
+            // microtask queue but the queue isn't being flushed, until the browser
+            // needs to do some other work, e.g. handle a timer. Therefore we can
+            // "force" the microtask queue to be flushed by adding an empty timer.
+        if (isIOS) setTimeout(noop)
+    }
 } else if (!isIE && typeof MutationObserver !== 'undefined' && (
-  isNative(MutationObserver) ||
-  // PhantomJS and iOS 7.x
-  MutationObserver.toString() === '[object MutationObserverConstructor]'
-)) {
-  // Use MutationObserver where native Promise is not available,
-  // e.g. PhantomJS, iOS7, Android 4.4
-  // (#6466 MutationObserver is unreliable in IE11)
-  let counter = 1
-  const observer = new MutationObserver(flushCallbacks)
-  const textNode = document.createTextNode(String(counter))
-  observer.observe(textNode, {
-    characterData: true
-  })
-  timerFunc = () => {
-    counter = (counter + 1) % 2
-    textNode.data = String(counter)
-  }
+        isNative(MutationObserver) ||
+        // PhantomJS and iOS 7.x
+        MutationObserver.toString() === '[object MutationObserverConstructor]'
+    )) {
+    // Use MutationObserver where native Promise is not available,
+    // e.g. PhantomJS, iOS7, Android 4.4
+    // (#6466 MutationObserver is unreliable in IE11)
+    let counter = 1
+    const observer = new MutationObserver(flushCallbacks)
+    const textNode = document.createTextNode(String(counter))
+    observer.observe(textNode, {
+        characterData: true
+    })
+    timerFunc = () => {
+        counter = (counter + 1) % 2
+        textNode.data = String(counter)
+    }
 } else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
-  // Fallback to setImmediate.
-  // Techinically it leverages the (macro) task queue,
-  // but it is still a better choice than setTimeout.
-  timerFunc = () => {
-    setImmediate(flushCallbacks)
-  }
+    // Fallback to setImmediate.
+    // Techinically it leverages the (macro) task queue,
+    // but it is still a better choice than setTimeout.
+    timerFunc = () => {
+        setImmediate(flushCallbacks)
+    }
 } else {
-  // Fallback to setTimeout.
-  timerFunc = () => {
-    setTimeout(flushCallbacks, 0)
-  }
+    // Fallback to setTimeout.
+    timerFunc = () => {
+        setTimeout(flushCallbacks, 0)
+    }
 }
 
-export function nextTick (cb?: Function, ctx?: Object) {
-  let _resolve
-  callbacks.push(() => {
-    if (cb) {
-      try {
-        cb.call(ctx)
-      } catch (e) {
-        handleError(e, ctx, 'nextTick')
-      }
-    } else if (_resolve) {
-      _resolve(ctx)
-    }
-  })
-  if (!pending) {
-    pending = true
-    timerFunc()
-  }
-  // $flow-disable-line
-  if (!cb && typeof Promise !== 'undefined') {
-    return new Promise(resolve => {
-      _resolve = resolve
+export function nextTick(cb ? : Function, ctx ? : Object) {
+    let _resolve
+        // 把 cb 加上异常处理存入 callbacks 数组中
+    callbacks.push(() => {
+        if (cb) {
+            try {
+                // 调用 cb()
+                cb.call(ctx)
+            } catch (e) {
+                handleError(e, ctx, 'nextTick')
+            }
+        } else if (_resolve) {
+            _resolve(ctx)
+        }
     })
-  }
+    if (!pending) {
+        pending = true
+            // 调用
+        timerFunc()
+    }
+    // $flow-disable-line
+    if (!cb && typeof Promise !== 'undefined') {
+        // 返回 promise 对象
+        return new Promise(resolve => {
+            _resolve = resolve
+        })
+    }
 }

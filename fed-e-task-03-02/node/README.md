@@ -347,7 +347,7 @@ export function initMixin(Vue: Class < Component > ) {
   + 2、初始化静态成员：
     + initGlobalAPI(Vue)
   + 3、调用 _init() 方法：this._init(options) 即 Vue.prototype._init
-    + Vue.prototype._init 源码文件见 src/core/instance/init.js
+    + **Vue.prototype._init** 源码文件见 src/core/instance/init.js
     ```js
     export function initMixin(Vue: Class < Component > ) {
         // 给 Vue 实力增加 init() 方法
@@ -400,7 +400,7 @@ export function initMixin(Vue: Class < Component > ) {
         }
     }
     ```
-    + vm.$mount (重写 $mount 方法的主要作用就是 compiler template) 方法源码如下，文件见 src/platform/web/entry-runtime-with-compiler.js ：
+    + **vm.$mount** (重写 $mount 方法的主要作用就是 compiler template) 方法源码如下，文件见 src/platform/web/entry-runtime-with-compiler.js ：
     ```js
     const mount = Vue.prototype.$mount
     Vue.prototype.$mount = function(
@@ -456,7 +456,7 @@ export function initMixin(Vue: Class < Component > ) {
         return mount.call(this, el, hydrating)
     }
     ```
-    + Vue.prototype.$mount(这个方法在 runtime-with-compiler 的时候会被重写) 方法源码如下，文件见 src/platforms/web/runtime/index.js：
+    + **Vue.prototype.$mount**(这个方法在 runtime-with-compiler 的时候会被重写) 方法源码如下，文件见 src/platforms/web/runtime/index.js：
     ```js
     Vue.prototype.$mount = function(
         el ? : string | Element,
@@ -466,7 +466,7 @@ export function initMixin(Vue: Class < Component > ) {
         return mountComponent(this, el, hydrating)
     }
     ```
-    + mountComponent 方法源码如下，文件见 src/core/instance/lifecycle.js：
+    + **mountComponent** 方法源码如下，文件见 src/core/instance/lifecycle.js：
     ```js
     export function mountComponent (
       vm: Component,
@@ -533,7 +533,7 @@ export function initMixin(Vue: Class < Component > ) {
     + src/core/instance/init.js
       + initState(vm)  vm状态的初始化
       + 初始化了 _data、_props、methods 等
-    + initData(vm): src/core/instance/state.js
+    + **initData(vm)**: src/core/instance/state.js
     ```js
     // 数据的初始化
     if (opts.data) {
@@ -542,7 +542,7 @@ export function initMixin(Vue: Class < Component > ) {
       observe(vm._data={}, true  /*  asRootData */)
     }
     ```
-    + observe(value: any, asRootData: ? boolean): src/core/observer/index.js
+    + **observe(value: any, asRootData: ? boolean)**: src/core/observer/index.js
     ```js
     export function observe(value: any, asRootData: ? boolean): Observer | void {
         // 判断 value 是否是对象
@@ -569,7 +569,7 @@ export function initMixin(Vue: Class < Component > ) {
         return ob
     }
     ```
-    + class Observer:  src/core/observer/index.js
+    + **class Observer**:  src/core/observer/index.js
     ```js
     export class Observer {
         // 观测对象
@@ -621,7 +621,7 @@ export function initMixin(Vue: Class < Component > ) {
         }
     }
     ```
-    + defineReactive (为一个对象定义一个响应式的属性): src/core/observer/index.js
+    + **defineReactive** (为一个对象定义一个响应式的属性): src/core/observer/index.js
     ```js
     export function defineReactive(
         obj: Object,
@@ -699,7 +699,7 @@ export function initMixin(Vue: Class < Component > ) {
     }
     ```
 + 数据响应式原理——依赖收集
-  + 入口在 src/core/observer/index.js/defineReactive 函数里
+  + **defineReactive**：入口在 src/core/observer/index.js/defineReactive 函数里
   ```js
   // 创建依赖对象实例
   const dep = new Dep()
@@ -715,7 +715,7 @@ export function initMixin(Vue: Class < Component > ) {
     }
   }
   ```
-  + class Dep(创建依赖对象实例)：文件在 src/core/observer/dep.js
+  + **class Dep**(创建依赖对象实例)：文件在 src/core/observer/dep.js
   ```js
   export default class Dep {
       // 静态属性，watcher 对象
@@ -761,7 +761,7 @@ export function initMixin(Vue: Class < Component > ) {
   }
   ```
   + Dep.target 的 target 的添加逻辑在组件 mount 阶段时 mountComponent 函数里会添加 new Watcher() ,Watcher 类里的 constructor 里会调用 get 方法中的 pushTarget(this) 
-    + class Watcher：src/core/observer/watcher.js
+    + **class Watcher**：src/core/observer/watcher.js
     ```js
     export default class Watcher {
       vm: Component;
@@ -982,7 +982,7 @@ export function initMixin(Vue: Class < Component > ) {
       }
     }
     ```
-    + pushTarget(将 watcher 挂载到 Dep 的 target 属性下)：src/core/observer/dep.js
+    + **pushTarget**(将 watcher 挂载到 Dep 的 target 属性下)：src/core/observer/dep.js
     ```js
     // Dep.target 用来存放目前正在使用的 watcher
     // 全局唯一，并且只能有一个 watcher 被使用
@@ -995,7 +995,7 @@ export function initMixin(Vue: Class < Component > ) {
     }
     ```
     + dep.depend(收集依赖的过程)：src/core/observer/index.js/defineReactive 函数里
-    + Dep 类里的 depend 方法源码如下：src/core/observer/dep.js
+    + Dep 类里的 **depend** 方法源码如下：src/core/observer/dep.js
     ```js
             // 将观察对象和 watcher 建立依赖
         depend() {
@@ -1006,7 +1006,7 @@ export function initMixin(Vue: Class < Component > ) {
             }
         }
     ```
-    + Watcher 类里的 addDep 方法源码如下：src/core/observer/watcher.js
+    + Watcher 类里的 **addDep** 方法源码如下：src/core/observer/watcher.js
     ```js
     addDep (dep: Dep) {
       const id = dep.id
@@ -1019,7 +1019,7 @@ export function initMixin(Vue: Class < Component > ) {
       }
     }
     ```
-    + Dep 类里的 addSub 方法源码如下：src/core/observer/dep.js
+    + Dep 类里的 **addSub** 方法源码如下：src/core/observer/dep.js
     ```js
     // 添加新的订阅者 watcher 对象
     addSub(sub: Watcher) {
@@ -1029,4 +1029,548 @@ export function initMixin(Vue: Class < Component > ) {
 + 依赖收集的流程图见 ./依赖收集流程.xmind
 
 #### 9、数据响应式原理——数组
++ 数组响应式的入口 **class Observer**：src/core/observer/index.js
+```js
+export class Observer {
+    // 观测对象
+    value: any;
+    // 依赖对象
+    dep: Dep;
+    // 实例计数器
+    vmCount: number; // number of vms that have this object as root $data
+
+    constructor(value: any) {
+        this.value = value
+        this.dep = new Dep()
+            // 初始化实例的 vmCount 为0
+        this.vmCount = 0
+            // 将实例挂载到观察对象的 __ob__ 属性
+        def(value, '__ob__', this)
+            // 数组的响应式处理
+        if (Array.isArray(value)) {
+            if (hasProto) {
+                protoAugment(value, arrayMethods)
+            } else {
+                copyAugment(value, arrayMethods, arrayKeys)
+            }
+            // 为数组中的每一个对象创建一个 observer 实例
+            this.observeArray(value)
+        } else {
+            // 遍历对象中的每一个属性，转换成 setter/getter
+            this.walk(value)
+        }
+    }
+  ...
+}
+```
++ Watcher类
+  + Watcher 分为三种，Computed Watcher、用户 Watcher(侦听器)、渲染 Watcher
+  + 渲染 Watcher 的创建时机
+    + **mountComponent**：src/core/instance/lifecycle.js
+    ```js
+    export function mountComponent (
+      vm: Component,
+      el: ?Element,
+      hydrating?: boolean
+    ): Component {
+      vm.$el = el
+      ...
+      let updateComponent
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+        ...
+      } else {
+        updateComponent = () => {
+          vm._update(vm._render(), hydrating)
+        }
+      }
+      new Watcher(vm, updateComponent, noop, {
+        before () {
+          if (vm._isMounted && !vm._isDestroyed) {
+            callHook(vm, 'beforeUpdate')
+          }
+        }
+      }, true /* isRenderWatcher */)
+      ...
+      return vm
+    }
+    ```
++ 响应式数组对象发生改变时的流程：
+  + dep 的 **notify()**：src/core/observer/dep.js
+  ```js
+  // 发布通知
+  notify() {
+      // stabilize the subscriber list first
+      const subs = this.subs.slice()
+      if (process.env.NODE_ENV !== 'production' && !config.async) {
+          // subs aren't sorted in scheduler if not running async
+          // we need to sort them now to make sure they fire in correct
+          // order
+          // 根据 id 来排序 sub
+          subs.sort((a, b) => a.id - b.id)
+      }
+      // 调用每个订阅者的 update 方法实现更新
+      for (let i = 0, l = subs.length; i < l; i++) {
+          subs[i].update()
+      }
+  }
+  ```
+  + **sub[i].update()**：c
+  ```js
+  update() {
+      /* istanbul ignore else */
+      if (this.lazy) {
+          this.dirty = true
+      } else if (this.sync) {
+          this.run()
+      } else {
+          queueWatcher(this)
+      }
+  }
+  ```
+  + **queueWatcher(this)**：src/core/observer/scheduler.js
+  ```js
+  export function queueWatcher (watcher: Watcher) {
+    const id = watcher.id
+    if (has[id] == null) {
+      has[id] = true
+      if (!flushing) {
+        queue.push(watcher)
+      } else {
+        // if already flushing, splice the watcher based on its id
+        // if already past its id, it will be run next immediately.
+        let i = queue.length - 1
+        while (i > index && queue[i].id > watcher.id) {
+          i--
+        }
+        queue.splice(i + 1, 0, watcher)
+      }
+      // queue the flush
+      if (!waiting) {
+        waiting = true
+
+        if (process.env.NODE_ENV !== 'production' && !config.async) {
+          flushSchedulerQueue()
+          return
+        }
+        nextTick(flushSchedulerQueue)
+      }
+    }
+  }
+  ```
+  + **nextTick(flushSchedulerQueue)**：src/core/observer/scheduler.js
+  + **flushSchedulerQueue**：src/core/observer/scheduler.js
+  ```js
+  function flushSchedulerQueue () {
+    flushing = true
+    let watcher, id
+
+    // Sort queue before flush.
+    // This ensures that:
+    // 1. Components are updated from parent to child. (because parent is always
+    //    created before the child)
+    // 2. A component's user watchers are run before its render watcher (because
+    //    user watchers are created before the render watcher)
+    // 3. If a component is destroyed during a parent component's watcher run,
+    //    its watchers can be skipped.
+    queue.sort((a, b) => a.id - b.id)
+
+    // do not cache length because more watchers might be pushed
+    // as we run existing watchers
+    for (index = 0; index < queue.length; index++) {
+      watcher = queue[index]
+      if (watcher.before) {
+        watcher.before()
+      }
+      id = watcher.id
+      has[id] = null
+      watcher.run()
+      // in dev build, check and stop circular updates.
+      if (process.env.NODE_ENV !== 'production' && has[id] != null) {
+        circular[id] = (circular[id] || 0) + 1
+        if (circular[id] > MAX_UPDATE_COUNT) {
+          warn(
+            'You may have an infinite update loop ' + (
+              watcher.user
+                ? `in watcher with expression "${watcher.expression}"`
+                : `in a component render function.`
+            ),
+            watcher.vm
+          )
+          break
+        }
+      }
+    }
+  ```
+  + **watcher.run()**：src/core/observer/watcher.js
+  ```js
+  run() {
+      if (this.active) {
+          const value = this.get()
+          if (
+              value !== this.value ||
+              // Deep watchers and watchers on Object/Arrays should fire even
+              // when the value is the same, because the value may
+              // have mutated.
+              isObject(value) ||
+              this.deep
+          ) {
+              // set new value
+              const oldValue = this.value
+              this.value = value
+              if (this.user) {
+                  try {
+                      this.cb.call(this.vm, value, oldValue)
+                  } catch (e) {
+                      handleError(e, this.vm, `callback for watcher "${this.expression}"`)
+                  }
+              } else {
+                  this.cb.call(this.vm, value, oldValue)
+              }
+          }
+      }
+  }
+  ```
+  + this.get() 即 watcher 的 get 方法，触发收集依赖和更新
+
+#### 10、set——源码
++ 定义位置
+  + Vue.set()
+    + src/core/global-api/index.js
+    ```js
+    Vue.set = set
+    Vue.delete = del
+    Vue.nextTick = nextTick
+    ```
+  + vm.$set()
+    + src/core/instance/index.js
+    ```js
+        // 注册 vm 的 $data/$props/$set/$delete/$watch
+    stateMixin(Vue)
+    ```
+    + src/core/instance/state.js
+    ```js
+    Vue.prototype.$set = set
+    Vue.prototype.$delete = del
+    ```
++ **set()**：src/core/observer/index.js
+```js
+export function set(target: Array < any > | Object, key: any, val: any): any {
+    if (process.env.NODE_ENV !== 'production' &&
+        (isUndef(target) || isPrimitive(target))
+    ) {
+        warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
+    }
+    // 判断 target 是否是对象，key 是否是合法的索引
+    if (Array.isArray(target) && isValidArrayIndex(key)) {
+        target.length = Math.max(target.length, key)
+            // 通过 splice 对 key 位置的元素进行替换
+            // splice 在 array.js 进行了响应式的处理
+        target.splice(key, 1, val)
+        return val
+    }
+    // 如果 key 在对象中已经存在直接赋值
+    if (key in target && !(key in Object.prototype)) {
+        target[key] = val
+        return val
+    }
+    // 获取 target 中的 observer 对象
+    const ob = (target: any).__ob__
+        // 如果 target 是 vue 实例或者 $data 直接返回
+    if (target._isVue || (ob && ob.vmCount)) {
+        process.env.NODE_ENV !== 'production' && warn(
+            'Avoid adding reactive properties to a Vue instance or its root $data ' +
+            'at runtime - declare it upfront in the data option.'
+        )
+        return val
+    }
+    // 如果 ob 不存在，target 不是响应式对象，则不添加响应式的处理并直接赋值
+    if (!ob) {
+        target[key] = val
+        return val
+    }
+    // 把 key 设置为响应式属性
+    defineReactive(ob.value, key, val)
+        // 发送通知
+    ob.dep.notify()
+    return val
+}
+```
+
+#### 11、delete——源码
++ vm.$delete
+  + 功能：删除对象的属性。如果对象是响应式的，确保删除能触发更新视图。这个方法主要用于避开 Vue 不能检测到属性被删除的限制，但是你应该很少会使用它。
+    + 注意：目标对象不能是一个 Vue 实例或 Vue 实例的根数据对象。
+  + 示例：
+  ```js
+  vm.$delete(vm.obj, 'msg')
+  ```
++ 定义位置
+  + Vue.delete： src/core/global-api/index.js
+  + **delete()**：src/core/observer/index.js
+  ```js
+  export function del(target: Array < any > | Object, key: any) {
+      if (process.env.NODE_ENV !== 'production' &&
+          (isUndef(target) || isPrimitive(target))
+      ) {
+          warn(`Cannot delete reactive property on undefined, null, or primitive value: ${(target: any)}`)
+      }
+      // 判断是否是数组，以及 key 是否合法
+      if (Array.isArray(target) && isValidArrayIndex(key)) {
+          // 如果是数组通过 splice 删除
+          // splice 做过响应式处理
+          target.splice(key, 1)
+          return
+      }
+      // 获取 target 的 ob 对象
+      const ob = (target: any).__ob__
+          // 如果 target 是 vue 实例或者 $data 直接返回
+      if (target._isVue || (ob && ob.vmCount)) {
+          process.env.NODE_ENV !== 'production' && warn(
+              'Avoid deleting properties on a Vue instance or its root $data ' +
+              '- just set it to null.'
+          )
+          return
+      }
+      // 如果 target 对象没有 key 属性直接返回
+      if (!hasOwn(target, key)) {
+          return
+      }
+      // 删除属性
+      delete target[key]
+      if (!ob) {
+          return
+      }
+      // 发送通知
+      ob.dep.notify()
+  }
+  ```
+  
+#### 12、watch——回顾
++ vm.$watch(expOrFn, callback, [options])
+  + 功能：观察 Vue 实例变化的一个表达式或计算属性函数，回调函数得到的参数为新值和旧值。表达式只接受监督的键路径。对于更复杂的表达式，用一个函数取代
+  + 参数：
+    + expOrFn：要监视的 $data 中的属性，可以是表达式或函数
+    + callback：数据变化后执行函数
+      + 函数：回调函数
+      + 对象：具有 handler 属性(字符串或者函数)，如果该属性为字符串则 methods 中相应的定义
+    + options：可选的选项
+      + deep：布尔类型，深度监听
+      + immediate：布尔类型，是否立即执行一次回调函数
+
+  + 示例：
+  ```js
+  var vm = new Vue({
+    data: {
+      a: 1,
+      b: 2,
+      c: 3,
+      d: 4,
+      e: {
+        f: {
+          g: 5
+        }
+      }
+    },
+    watch: {
+      a: function (val, oldVal) {
+        console.log('new: %s, old: %s', val, oldVal)
+      },
+      // 方法名
+      b: 'someMethod',
+      // 该回调会在任何被侦听的对象的 property 改变时被调用，不论其被嵌套多深
+      c: {
+        handler: function (val, oldVal) { /* ... */ },
+        deep: true
+      },
+      // 该回调将会在侦听开始之后被立即调用
+      d: {
+        handler: 'someMethod',
+        immediate: true
+      },
+      // 你可以传入回调数组，它们会被逐一调用
+      e: [
+        'handle1',
+        function handle2 (val, oldVal) { /* ... */ },
+        {
+          handler: function handle3 (val, oldVal) { /* ... */ },
+          /* ... */
+        }
+      ],
+      // watch vm.e.f's value: {g: 5}
+      'e.f': function (val, oldVal) { /* ... */ }
+    }
+  })
+  vm.a = 2 // => new: 2, old: 1
+  ```
+  + 三种类型的 Watcher 对象
+    + 没有静态方法，因为 $watch 方法中要使用 Vue 的实例
+    + Watcher 分三种：计算属性 Watcher、用户 Watche（侦听器）、渲染 Watcher
+      + 创建顺序：计算属性 Watcher、用户 Watcher(侦听器)、渲染 Watcher
+    + vm.$watche()
+      + src/core/instance/state.js
+
+#### 13、watche——源码
++ **initState(vm: Component)**：src/core/instance/state.js
+```js
+export function initState (vm: Component) {
+  vm._watchers = []
+  const opts = vm.$options
+  if (opts.props) initProps(vm, opts.props)
+  if (opts.methods) initMethods(vm, opts.methods)
+  if (opts.data) {
+    initData(vm)
+  } else {
+    observe(vm._data = {}, true /* asRootData */)
+  }
+  if (opts.computed) initComputed(vm, opts.computed)
+  if (opts.watch && opts.watch !== nativeWatch) {
+    initWatch(vm, opts.watch)
+  }
+}
+```
++ **initWatch (vm: Component, watch: Object**：src/core/instance/state.js
+```js
+function initWatch (vm: Component, watch: Object) {
+  for (const key in watch) {
+    const handler = watch[key]
+    if (Array.isArray(handler)) {
+      for (let i = 0; i < handler.length; i++) {
+        createWatcher(vm, key, handler[i])
+      }
+    } else {
+      createWatcher(vm, key, handler)
+    }
+  }
+}
+```
++ **createWatcher (vm: Component, expOrFn: string | Function, handler: any, options?: Object)**：src/core/instance/state.js
+```js
+function createWatcher (
+  vm: Component,
+  expOrFn: string | Function,
+  handler: any,
+  options?: Object
+) {
+  if (isPlainObject(handler)) {
+    options = handler
+    handler = handler.handler
+  }
+  if (typeof handler === 'string') {
+    handler = vm[handler]
+  }
+  return vm.$watch(expOrFn, handler, options)
+}
+```
++ **vm.$watch(expOrFn, handler, options)**：src/core/instance/state.js
+```js
+Vue.prototype.$watch = function(
+    expOrFn: string | Function,
+    cb: any,
+    options ? : Object
+): Function {
+    // 获取 Vue 实例 this
+    const vm: Component = this
+    if (isPlainObject(cb)) {
+        // 判断如果 cb 是对象,执行 createWatcher 
+        return createWatcher(vm, expOrFn, cb, options)
+    }
+    options = options || {}
+        // 标记为用户 watcher
+    options.user = true
+        // 创建用户 watcher 对象
+    const watcher = new Watcher(vm, expOrFn, cb, options)
+        // 判断 immediate 如果为 true
+    if (options.immediate) {
+        // 立即执行一次 cb 回调，并且把当前值传入
+        try {
+            cb.call(vm, watcher.value)
+        } catch (error) {
+            handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
+        }
+    }
+    // 返回取消监听的方法
+    return function unwatchFn() {
+        watcher.teardown()
+    }
+}
+```
+
+#### 14、nextTick——源码
++ 异步更新队列——nextTick()
+  + Vue 更新 DOM 是异步执行的，批量的
+    + 在下次 DOM 更新循环结束之后执行延迟回调，在修改数据之后立即使用这个方法，获得更新后的 DOM
+  + vm.$nextTick(function(){/* 操作DOM */}) / Vue.nextTick(function(){})
++ vm.$nextTick 代码演示
+```js
+<div id="app">
+    <p ref='p1'>{{msg}}</p>
+</div>
+
+<script src="../../dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+            el: '#app',
+            data: {
+                msg: 'Hello nextTick',
+                name: 'Vue.js',
+                title: 'Title'
+            },
+            mounted() {
+                this.msg = 'Hello World'
+                this.name = 'Hello snambdom'
+                this.title = 'Vue.js'
+                this.$nextTick(() => {
+                    console.log(this.$refs.p1.textContent)
+                })
+            }
+        })
+</script>
+```
++ 源码
+  + 定义位置
+    + src/core/instance/render.js
+    ```js
+    Vue.prototype.$nextTick = function(fn: Function) {
+        return nextTick(fn, this)
+    }
+    ```
+  + 流程：
+    + 手动调用 vm.$nextTick()
+    + 在 Watcher 的 queueWatcher 中执行 nextTick()
+    + src/core/util/next-tick.js
+    ```js
+    export function nextTick(cb? : Function, ctx? : Object) {
+        let _resolve
+            // 把 cb 加上异常处理存入 callbacks 数组中
+        callbacks.push(() => {
+            if (cb) {
+                try {
+                    // 调用 cb()
+                    cb.call(ctx)
+                } catch (e) {
+                    handleError(e, ctx, 'nextTick')
+                }
+            } else if (_resolve) {
+                _resolve(ctx)
+            }
+        })
+        if (!pending) {
+            pending = true
+                // 调用
+            timerFunc()
+        }
+        // $flow-disable-line
+        if (!cb && typeof Promise !== 'undefined') {
+            // 返回 promise 对象
+            return new Promise(resolve => {
+                _resolve = resolve
+            })
+        }
+    }
+    ```
+
+
+### 任务二：vue.js源码剖析——虚拟 DOM
+#### 1、
 
