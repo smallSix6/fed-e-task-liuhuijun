@@ -1572,5 +1572,191 @@ Vue.prototype.$watch = function(
 
 
 ### 任务二：vue.js源码剖析——虚拟 DOM
-#### 1、
+#### 1、虚拟 DOM 概念回顾
++ 什么是虚拟 DOM
+  + 虚拟 DOM(Virtual DOM) 是使用 JavaScript 对象描述真实 DOM
+  + Vue.js 中的虚拟 DOM 借鉴 Snabbdom, 并添加了 Vue.js 的特性。
+    + 例如：指令和组件机制
++ 为什么要使用虚拟 DOM
+  + 避免直接操作 DOM，提高开发效率
+  + 作为一个中间层可以跨平台
+  + 虚拟 DOM 不一定可以提高性能
+    + 首次渲染的时候会增加开销
+    + 复杂视图情况下提升渲染性能
+
+#### 2、代码示例
+```js
+<div id="app">
+</div>
+
+<script src="../../dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: '#app',
+        render(h) {
+            // h(tag, data, children)
+            // return h('h1', this.msg)
+            // return h('h1', { domProps: {innerHTML: this.msg} })
+            // return h('h1', {attrs: {id:'title'}}, this.msg)
+            const vnode = h(
+                'h1', {
+                    attrs: {
+                        id: 'title'
+                    }
+                },
+                this.msg
+            )
+            console.log(vnode)
+            return vnode
+        },
+        data: {
+            msg: 'Hello Vue'
+        }
+    })
+</script>
+```
++ h 函数
+  + vm.$createElement(tag, data, children, normalizeChildren)
+    + tag: 标签名称或者组件对象
+    + data: 描述 tag, 可以设置 DOM 的属性或者标签的属性
+    + children: tag 中的文本内容或者子节点
++ VNode
+  + VNode 的核心属性
+    + tag
+    + data
+    + children
+    + text
+    + elm
+    + key
+
+#### 3、VNode 的创建过程
++ ![](../images/vnode.png)
++ xmind文件见: ./VNode创建过程.xmind
+
+#### 4、vm._update(vm._render(), hydrating) : src/core/instance/lifecycle.js
+```js
+  // _update 方法的作用是把 VNode 渲染成真实的 DOM
+    // 首次渲染会调用，数据更新会调用
+    Vue.prototype._update = function(vnode: VNode, hydrating ? : boolean) {
+        const vm: Component = this
+        const prevEl = vm.$el
+        const prevVnode = vm._vnode
+        const restoreActiveInstance = setActiveInstance(vm)
+        vm._vnode = vnode
+            // Vue.prototype.__patch__ is injected in entry points
+            // based on the rendering backend used.
+        if (!prevVnode) {
+            // initial render
+            vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */ )
+        } else {
+            // updates
+            vm.$el = vm.__patch__(prevVnode, vnode)
+        }
+        restoreActiveInstance()
+            // update __vue__ reference
+        if (prevEl) {
+            prevEl.__vue__ = null
+        }
+        if (vm.$el) {
+            vm.$el.__vue__ = vm
+        }
+        // if parent is an HOC, update its $el as well
+        if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+            vm.$parent.$el = vm.$el
+        }
+        // updated hook is called by the scheduler to ensure that children are
+        // updated in a parent's updated hook.
+    }
+```
+
+#### 5、patch 函数的初始化
++ Vue.js 中 patch 的初始化
+  + 位置：src/platforms/web/runtime/index.js
+  ```js
+  import {patch} from './patch'
+  Vue.prototype.__patch__ = inBrowser ? patch : noop
+  ```
++ **patch** 函数的位置：src/platforms/web/runtime/patch.js
+```js
+import * as nodeOps from 'web/runtime/node-ops'
+import { createPatchFunction } from 'core/vdom/patch'
+import baseModules from 'core/vdom/modules/index'
+import platformModules from 'web/runtime/modules/index'
+
+// the directive module should be applied last, after all
+// built-in modules have been applied.
+const modules = platformModules.concat(baseModules)
+
+export const patch: Function = createPatchFunction({ nodeOps, modules })
+```
+  + **nodeOps** ：src/platforms/web/runtime/node-ops
+  ```js
+  import { namespaceMap } from 'web/util/index'
+
+  export function createElement (tagName: string, vnode: VNode): Element {
+    const elm = document.createElement(tagName)
+    if (tagName !== 'select') {
+      return elm
+    }
+    // false or null will remove the attribute but undefined will not
+    if (vnode.data && vnode.data.attrs && vnode.data.attrs.multiple !== undefined) {
+      elm.setAttribute('multiple', 'multiple')
+    }
+    return elm
+  }
+
+  export function createElementNS (namespace: string, tagName: string): Element {
+    return document.createElementNS(namespaceMap[namespace], tagName)
+  }
+
+  export function createTextNode (text: string): Text {
+    return document.createTextNode(text)
+  }
+
+  export function createComment (text: string): Comment {
+    return document.createComment(text)
+  }
+
+  export function insertBefore (parentNode: Node, newNode: Node, referenceNode: Node) {
+    parentNode.insertBefore(newNode, referenceNode)
+  }
+
+  export function removeChild (node: Node, child: Node) {
+    node.removeChild(child)
+  }
+
+  export function appendChild (node: Node, child: Node) {
+    node.appendChild(child)
+  }
+
+  export function parentNode (node: Node): ?Node {
+    return node.parentNode
+  }
+
+  export function nextSibling (node: Node): ?Node {
+    return node.nextSibling
+  }
+
+  export function tagName (node: Element): string {
+    return node.tagName
+  }
+
+  export function setTextContent (node: Node, text: string) {
+    node.textContent = text
+  }
+
+  export function setStyleScope (node: Element, scopeId: string) {
+    node.setAttribute(scopeId, '')
+  }
+  ```
+  + **modules** ：const modules = platformModules.concat(baseModules)
++ **createPatchFunction({ nodeOps, modules })**：src/core/vdom/patch.js
+  + return function patch (oldVnode, vnode, hydrating, removeOnly)
++ 流程图：
+  + ![](../images/VNode 渲染为真实 DOM.png)
++ VNode 渲染为真实 DOM 过程详见：./note/VNode渲染为真实DOM.xmind
+
+
+
+
 
