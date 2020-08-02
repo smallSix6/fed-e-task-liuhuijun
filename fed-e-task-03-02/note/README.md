@@ -1753,7 +1753,7 @@ export const patch: Function = createPatchFunction({ nodeOps, modules })
 + **createPatchFunction({ nodeOps, modules })**：src/core/vdom/patch.js
   + return function patch (oldVnode, vnode, hydrating, removeOnly)
 + 流程图：
-  + ![](../images/VNode 渲染为真实 DOM.png)
+  + ![](../images/VNode渲染为真实DOM.png)
 + VNode 渲染为真实 DOM 过程详见：./note/VNode渲染为真实DOM.xmind
 
 
