@@ -185,7 +185,7 @@ Vue.prototype.$mount = function(
             // 注册 Vue.directive()、Vue.component()、Vue.filter()
         initAssetRegisters(Vue)
     }
-    ```
+   ```
   + initUse(Vue)  注册 Vue.use(),用来注册插件
   ```js
   import { toArray } from '../util/index'
@@ -345,6 +345,7 @@ export function initMixin(Vue: Class < Component > ) {
     + lifecycleMixin(Vue)
     + renderMixin(Vue)
   + 2、初始化静态成员：
+    
     + initGlobalAPI(Vue)
   + 3、调用 _init() 方法：this._init(options) 即 Vue.prototype._init
     + **Vue.prototype._init** 源码文件见 src/core/instance/init.js
@@ -477,8 +478,8 @@ export function initMixin(Vue: Class < Component > ) {
       if (!vm.$options.render) {
         vm.$options.render = createEmptyVNode
       }
-      callHook(vm, 'beforeMount')
-
+    callHook(vm, 'beforeMount')
+  
       let updateComponent
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -486,13 +487,13 @@ export function initMixin(Vue: Class < Component > ) {
           const name = vm._name
           const id = vm._uid
           const startTag = `vue-perf-start:${id}`
-          const endTag = `vue-perf-end:${id}`
-
+        const endTag = `vue-perf-end:${id}`
+  
           mark(startTag)
           const vnode = vm._render()
           mark(endTag)
-          measure(`vue ${name} render`, startTag, endTag)
-
+        measure(`vue ${name} render`, startTag, endTag)
+  
           mark(startTag)
           vm._update(vnode, hydrating)
           mark(endTag)
@@ -517,8 +518,8 @@ export function initMixin(Vue: Class < Component > ) {
       }
       return vm
     }
-    ```
-
+  ```
+  
 + 首次渲染的流程图见：
 ![](../images/首次渲染过程.png)
 
@@ -1762,7 +1763,7 @@ export const patch: Function = createPatchFunction({ nodeOps, modules })
 
 
 
-### 任务三： Vue模板编译
+### 任务三： Vue模板编译（这个看的比较粗略，后期有时间需要复习）
 
 #### 一、模板编译介绍
 
@@ -1845,6 +1846,91 @@ Vu3网址是：https://vue-next-template-explorer.netlify.app/
 我们可以看到Vue对render函数做了优化，此外Vue2中的模板中尽量不要出现多余的空白，因为都会被转换到render函数中，Vue3的模板中的空白则不影响render函数
 
 ### 三、模板编译的入口
++ **Vue.prototype.$mount**(重写的$mount)中的源码入口如下：src/platforms/web/entry-runtime-with-compiler.js ：
+```js
+import { compileToFunctions } from './compiler/index'
+// 把 template 转换成 render 函数
+const { render, staticRenderFns } = compileToFunctions(template, {
+    outputSourceRange: process.env.NODE_ENV !== 'production',
+    shouldDecodeNewlines,
+    shouldDecodeNewlinesForHref,
+    delimiters: options.delimiters,
+    comments: options.comments
+}, this)
+options.render = render
+options.staticRenderFns = staticRenderFns
+```
++ **compileToFunctions**：src/platforms/web/compiler/index
+```js
+import { baseOptions } from './options'
+import { createCompiler } from 'compiler/index'
+const { compile, compileToFunctions } = createCompiler(baseOptions)
+export { compile, compileToFunctions }
+```
++ **createCompiler**：src/compiler/index
+```js
+export const createCompiler = createCompilerCreator(function baseCompile (
+  template: string,
+  options: CompilerOptions
+): CompiledResult {
+  const ast = parse(template.trim(), options)
+  if (options.optimize !== false) {
+    optimize(ast, options)
+  }
+  const code = generate(ast, options)
+  return {
+    ast,
+    render: code.render,
+    staticRenderFns: code.staticRenderFns
+  }
+})
+```
++ **createCompilerCreator**：src/compiler/create-compiler.js
+```js
+export function createCompilerCreator (baseCompile: Function): Function {
+  return function createCompiler (baseOptions: CompilerOptions) {
+    ...
+    return {
+      compile,
+      compileToFunctions: createCompileToFunctionFn(compile)
+    }
+  }
+}
+```
++ **createCompileToFunctionFn**：src/compiler/to-function.js
+```js
+export function createCompileToFunctionFn (compile: Function): Function {
+  const cache = Object.create(null)
+
+  return function compileToFunctions (
+    template: string,
+    options?: CompilerOptions,
+    vm?: Component
+  ): CompiledFunctionResult {
+    
+    res.staticRenderFns = compiled.staticRenderFns.map(code => {
+      return createFunction(code, fnGenErrors)
+    })
+    ...
+    // check function generation errors.
+    // this should only happen if there is a bug in the compiler itself.
+    // mostly for codegen development use
+    /* istanbul ignore if */
+    if (process.env.NODE_ENV !== 'production') {
+      if ((!compiled.errors || !compiled.errors.length) && fnGenErrors.length) {
+        warn(
+          `Failed to generate render function:\n\n` +
+          fnGenErrors.map(({ err, code }) => `${err.toString()} in\n\n${code}\n`).join('\n'),
+          vm
+        )
+      }
+    }
+
+    return (cache[key] = res)
+  }
+}
+```
+
 
 ![../images/07.jpeg](../images/07.jpeg)
 
