@@ -192,9 +192,9 @@
     + 然后触发了生命周期的钩子函数 mounted, 挂载结束，最终返回 Vue 实例。
 
 + 首次渲染的流程图见：
-![](../images/首次渲染过程.png)
+![](./images/首次渲染过程.png)
 + 收集依赖的流程图见：
-![](../images/依赖收集流程.png)
+![](./images/依赖收集流程.png)
 
 
 ### 2、请简述 Vue 响应式原理。
@@ -225,7 +225,7 @@
     + 访问 data 中的成员的时候收集依赖，defineReactive 的 getter 中收集依赖
     + 把属性对应的 watcher 对象添加到 dep 的 subs 数组中
     + 给 childOb 收集依赖，目的是子对象添加和删除成员时发送通知
-  + 收集依赖的流程图见：![](../images/依赖收集流程.png)
+  + 收集依赖的流程图见：![](./images/依赖收集流程.png)
   + Watcher：
 	+ dep.notify() 在调用 watcher 对象的 update() 方法
 	+ queueWatcher() 判断 watcher 是否被处理，如果没有的话添加到 queue 队列中，被调用 flushSchedulerQueue()
@@ -237,7 +237,7 @@
 		+ 触发 actived 钩子函数
 		+ 触发 updated 钩子函数
 + 整个流程图如下：
-![](../images/响应式处理过程.png)
+![](./images/响应式处理过程.png)
 
 ### 3、请简述虚拟 DOM 中 Key 的作用和好处。
 + 答：在 diff 算法中 使用 key 时的比较：
@@ -261,4 +261,4 @@
 + 好处：在 diff 的时候，如果 newStartVnode 的属性中是否有 key, 如果也设置了 key 的话，那么就根据 newStartVnode 中的 key 在 createKeyToOldIdx 这个函数返回的 map 表中取出 oldCh 中的存在这个 key 的 vnode，然后再进行 diff 的过程。这样能减少 diff 的比较，同时设置 key 比不设置 key 的 DOM 操作要少很多，会优化 DOM 操作。
 ### 4、请简述 Vue 
 + 答：编译过程的入口函数 compileToFunctions 是先从缓存中加载编译好的 render 函数，如果缓存中没有的话，就去调用 compile 函数，在compile 函数中，首先去合并选项，然后调用 baseCompile 函数编译模板。把模板合并好的选项传递给 baseCompile ，baseCompile 里面完成了模板编译核心的三件事，首先调用 parse 函数把模板转换成 AST 抽象语法树，然后调用 optimize 函数对抽象语法树进行优化，标记静态语法树中的静态根节点（只包含纯文本的静态节点不是静态根节点，因为此时的优化成本大于收益），patch 过程中会跳过静态根节点，最后调用 generate 函数，将 AST 对象转化为 js 形式的代码。当 compile 执行完毕后，会回到编译的入口函数 compileToFunctions ，通过调用 createFunction 函数，继续把上一步中生成的字符串形式 JS 代码转化为函数形式。当 render 和 staticRenderFns 初始化完毕，挂载到 Vue 实例的 options 对应的属性上。
-+ ![](../images/09.jpeg)
++ ![](./images/09.jpeg)
