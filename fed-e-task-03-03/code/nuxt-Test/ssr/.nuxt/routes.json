@@ -1,0 +1,16 @@
+[
+  {
+    "name": "about",
+    "path": "/about",
+    "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/nuxt-Test/ssr/pages/about.vue",
+    "chunkName": "pages/about",
+    "_name": "_273647be"
+  },
+  {
+    "name": "index",
+    "path": "/",
+    "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/nuxt-Test/ssr/pages/index.vue",
+    "chunkName": "pages/index",
+    "_name": "_0c1cb6e6"
+  }
+]
