@@ -687,11 +687,11 @@ app.listen(3000, () => {
 
 #### 5、Nuxt.js为例演示同构渲染应用
 + 流程演示，完整代码见：../code/nuxt-Test/ssr ：
-  + 1、创建一个文件夹，然后进入文件夹执行`yarn init`生成包管理器
-  + 2、然后执行`yarn add nuxt`安装Nuxt
-  + 3、在 package.json 增加 scripts 脚本命令`"dev": "nuxt"`
-  + 4、创建 pages 文件夹，在这个文件夹中创建 index.vue 文件和 about.vue 文件，nuxt 会根据 pages 路径自动生成路由。
-  + 5、index.vue 中请求数据
+  1、创建一个文件夹，然后进入文件夹执行`yarn init`生成包管理器
+  2、然后执行`yarn add nuxt`安装Nuxt
+  3、在 package.json 增加 scripts 脚本命令`"dev": "nuxt"`
+  4、创建 pages 文件夹，在这个文件夹中创建 index.vue 文件和 about.vue 文件，nuxt 会根据 pages 路径自动生成路由。
+  5、index.vue 中请求数据
     ```js
     <template>
       <div id="app">
@@ -717,8 +717,8 @@ app.listen(3000, () => {
     </script>
     <style scoped></style>
     ```
-  + 6、一次请求就拿到了完整页面，Nuxt 的服务端渲染方案解决了首屏渲染慢的问题和 SEO 的问题
-  + 7、Nuxt 生成的是 SPA 单页应用，可以通过增加路由导航看出来，Home 和 About 两个组件切换时页面没有刷新。创建一个文件夹 layouts，然后在这个文件夹中创建一个 default.vue 文件，这个文件夹名 layouts 和 其下的 default.vue 是固定的，不能更改
+  6、一次请求就拿到了完整页面，Nuxt 的服务端渲染方案解决了首屏渲染慢的问题和 SEO 的问题
+  7、Nuxt 生成的是 SPA 单页应用，可以通过增加路由导航看出来，Home 和 About 两个组件切换时页面没有刷新。创建一个文件夹 layouts，然后在这个文件夹中创建一个 default.vue 文件，这个文件夹名 layouts 和 其下的 default.vue 是固定的，不能更改
   ```js
   <template>
   <div>
