@@ -772,5 +772,29 @@ app.listen(3000, () => {
   + 它可以帮我们轻松的使用 Vue.js 技术栈构建同构应用
   + 官网：< https://zh.nuxtjs.org >
   + Github 仓库：< https://github.com/nuxt/nuxt.js >
+#### 2、初始化 NuxtJS 项目
++ Nuxt.js 的三种使用方式
+  + 初始化项目
+    + 官方文档：< https://zh.nuxtjs.org/guide/installation >
+      + 方式一：使用 create-nuxt-app
+      + 方式二：手动创建
+        + 项目根目录运行 `npm init -y`,并如下添加脚本
+          ```js
+          {
+            "name": "my-app",
+            "scripts": {
+              "dev": "nuxt"
+            }
+          }
+          ```
+        + 安装 Nuxt: `npm install --save nuxt`
+        + 新建 pages 目录
+          + 此目录下新建我们的文件 index.vue 文件，作为首页
+        + `npm run dev` 启动项目
+  + 已有的 Node.js 服务端项目
+    + 直接把 Nuxt 当作一个中间件集成到 Node Web Server 中
+  + 现有的 Vue.js 项目
+    + 非常熟悉 Nuxt.js
+    + 至少百分之十的代码改动
 
 
