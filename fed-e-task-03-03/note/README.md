@@ -766,4 +766,11 @@ app.listen(3000, () => {
 
 ### 任务三：NuxtJS基础
 
+#### 1、NuxtJS 介绍
++ Nuxt.js 是什么
+  + 一个基于 Vue.js 生态的第三方开源服务端渲染应用框架
+  + 它可以帮我们轻松的使用 Vue.js 技术栈构建同构应用
+  + 官网：< https://zh.nuxtjs.org >
+  + Github 仓库：< https://github.com/nuxt/nuxt.js >
+
 
