@@ -904,6 +904,7 @@ app.listen(3000, () => {
     ]
   }
   ```
+  + ![](../images/动态路由.png)
 + 嵌套路由
   + Vue Router 嵌套路由
     + https://router.vuejs.org/zh/guide/essentials/nested-routes.html
@@ -943,6 +944,8 @@ app.listen(3000, () => {
       ]
     }
     ```
+  + ![](../images/嵌套路由.png)
+  + ![](../images/动态嵌套路由.png)
 + 自定义路由配置
   + 参考文档：https://zh.nuxtjs.org/api/configuration-router
   + 在项目根目录下新建 nuxt.config.js，配置内容如下：
@@ -968,6 +971,7 @@ app.listen(3000, () => {
 #### 4、视图
 + 模板
   + 参考文档：https://zh.nuxtjs.org/guide/views
+  + ![](../images/模板.png)
 + 布局
   + uxt.js 允许你扩展默认的布局，或在 layout 目录下创建自定义的布局
     + 默认布局
@@ -1016,14 +1020,14 @@ app.listen(3000, () => {
       </script>
       ```
 
-#### 5、异步数据
+#### 5、异步数据（完整代码见：< https://github.com/smallSix6/nuxt-demo/tree/08-%E5%BC%82%E6%AD%A5%E6%95%B0%E6%8D%AE >
 + asyncData 方法
   + 参考文档：https://zh.nuxtjs.org/guide/async-data
   + 基本用法：
     + 它会将 asyncData 返回的数据融合组件 data 方法返回数据一并给组件
     + 调用时机：服务端渲染期间和客户端路由更新之前
   + 注意事项：
-    + 只能在页面组件中使用,子组件中不能使用（即 components 文件夹下的文件），子组件中的异步数据可以通过页面组件的 props 传给子组件，示例如 components/Test1.vue 子组件中的代码
+    + 只能在页面中使用,子组件中不能使用（即 components 文件夹下的文件），子组件中的异步数据可以通过页面组件的 props 传给子组件，示例如 components/Test1.vue 子组件中的代码
       ```js
       <template>
       <div>
@@ -1084,5 +1088,12 @@ app.listen(3000, () => {
     |beforeNuxtRender(fn)	  |Function	       |服务端	           |使用此方法更新 __NUXT__ 在客户端呈现的变量，fn 调用 (可以是异步) { Components, nuxtState } ，参考 示例  |
 
 
+### 任务四：NuxtJS 综合案例
 
+#### 1、案例介绍
+  + 案例名称：RealWorld
+  + 一个开源的学习项目，目的就是帮助开发者快速学习新技能
+  + Github 仓库：https://github.com/gothinkster/realworld
+  + 在线示例：https://demo.realworld.io/#/
+  + 页面模板
 
