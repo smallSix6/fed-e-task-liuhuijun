@@ -797,4 +797,234 @@ app.listen(3000, () => {
     + 非常熟悉 Nuxt.js
     + 至少百分之十的代码改动
 
+#### 3、路由
++ 基础路由
+  + 假设 pages 的目录结构如下：
+    ```js
+    pages/
+    --| user/
+    -----| index.vue
+    -----| one.vue
+    --| index.vue
+    ```
+    + 那么，Nuxt.js 自动生成的路由配置如下：
+    ```js
+    router: {
+      routes: [
+        {
+          name: 'index',
+          path: '/',
+          component: 'pages/index.vue'
+        },
+        {
+          name: 'user',
+          path: '/user',
+          component: 'pages/user/index.vue'
+        },
+        {
+          name: 'user-one',
+          path: '/user/one',
+          component: 'pages/user/one.vue'
+        }
+      ]
+    }
+    ```
++ 路由导航
+  + a 标签
+    + 它会刷新整个页面，不要使用
+  + nuxt-link 组件
+    + https://router.vuejs.org/zh/api/#router-link-props
+  + 编程式导航
+    + https://router.vuejs.org/zh/guide/essentials/navigation.html
+    ```js
+    <template>
+    <div>
+    <p>About Page</p>
+    <!-- a 链接，刷新导航，走服务端渲染 -->
+    <h2>a链接</h2>
+    <a href="/">首页</a>
+
+    <!-- router-link  导航连接组件 -->
+    <h2>router-link</h2>
+    <router-link to='/'>首页</router-link>
+
+    <!-- 编程式导航 -->
+    <button @click="onClick">首页</button>
+    </div>
+    </template>
+    <script>
+    export default {
+    name: "aboutPage",
+    methods: {
+
+      onClick() {
+        this.$router.push('/')
+      }
+    }
+    }
+    </script>
+    <style scoped>
+    </style>
+    ```
++ 动态路由
+  + 在 Nuxt.js 里面定义带参数的动态路由，需要创建对应的以下划线作为前缀的 Vue 文件或目录。以下目录结构：
+  ```js
+  pages/
+  --| _slug/
+  -----| comments.vue
+  -----| index.vue
+  --| users/
+  -----| _id.vue
+  --| index.vue
+  ```
+  + Nuxt.js 生成对应的路由配置表为：
+  ```js
+  router: {
+    routes: [
+      {
+        name: 'index',
+        path: '/',
+        component: 'pages/index.vue'
+      },
+      {
+        name: 'users-id',
+        path: '/users/:id?',
+        component: 'pages/users/_id.vue'
+      },
+      {
+        name: 'slug',
+        path: '/:slug',
+        component: 'pages/_slug/index.vue'
+      },
+      {
+        name: 'slug-comments',
+        path: '/:slug/comments',
+        component: 'pages/_slug/comments.vue'
+      }
+    ]
+  }
+  ```
++ 嵌套路由
+  + Vue Router 嵌套路由
+    + https://router.vuejs.org/zh/guide/essentials/nested-routes.html
+  + Nuxt.js 嵌套路由
+    + https://zh.nuxtjs.org/guide/routing/
+    + 你可以通过 vue-router 的子路由创建 Nuxt.js 应用的嵌套路由。
+    + 创建内嵌子路由，你需要添加一个 Vue 文件，同时添加一个与该文件同名的目录用来存放子视图组件。
+    + `Warning: 别忘了在父组件(.vue文件) 内增加 <nuxt-child/> 用于显示子视图内容`
+    + 假设文件结构如下：
+    ```js
+    pages/
+    --| users/
+    -----| _id.vue
+    -----| index.vue
+    --| users.vue
+    ```
+    + Nuxt.js 自动生成的路由配置如下：
+    ```js
+    router: {
+      routes: [
+        {
+          path: '/users',
+          component: 'pages/users.vue',
+          children: [
+            {
+              path: '',
+              component: 'pages/users/index.vue',
+              name: 'users'
+            },
+            {
+              path: ':id',
+              component: 'pages/users/_id.vue',
+              name: 'users-id'
+            }
+          ]
+        }
+      ]
+    }
+    ```
++ 自定义路由配置
+  + 参考文档：https://zh.nuxtjs.org/api/configuration-router
+  + 在项目根目录下新建 nuxt.config.js，配置内容如下：
+    ```js
+    // Nuxt.js 配置文件
+    module.exports = {
+      router: {
+        // 应用的根 URL。举个例子，如果整个单页面应用的所有资源可以通过 /app/ 来访问，那么 base 配置项的值需要设置为 '/app/'
+        base: '/app/',
+        // routes: 一个数组，路由配置表
+        // resolve: 解析路由组件路劲
+        extendRoutes(routes, resolve) {
+          routes.push({
+            name: '/hello',
+            path: 'hello',
+            component: resolve(__dirname, 'pages/about.vue') // 匹配到 /hello 时加载 about.vue 组件
+          })
+        }
+      }
+    }
+    ```
+
+#### 4、视图
++ 模板
+  + 参考文档：https://zh.nuxtjs.org/guide/views
++ 布局
+  + uxt.js 允许你扩展默认的布局，或在 layout 目录下创建自定义的布局
+    + 默认布局
+      + 可通过添加 layouts/default.vue 文件来扩展应用的默认布局
+      + 提示: 别忘了在布局文件中添加 <nuxt/> 组件用于显示页面的主体内容。
+      + 默认布局的源码如下：
+      ```js
+      <template>
+      <div>
+      <h1>layouts/default.vue 组件</h1>
+      <!-- 页面出口，类似于子路由 -->
+      <nuxt />
+      </div>
+      </template>
+
+      <script>
+      export default {
+
+      }
+      </script>
+
+      <style scoped>
+      </style>
+      ```
+    + 自定义布局
+      + layouts 目录中的每个文件 (顶级) 都将创建一个可通过页面组件中的 layout 属性访问的自定义布局。
+      + 假设我们要创建一个 博客布局 并将其保存到layouts/blog.vue:
+      ```js
+      <template>
+        <div>
+          <div>我的博客导航栏在这里</div>
+          <nuxt />
+        </div>
+      </template>
+      ```
+      + 然后我们必须告诉页面 (即pages/posts.vue) 使用您的自定义布局：
+      ```js
+      <template>
+        <!-- Your template -->
+      </template>
+      <script>
+        export default {
+          layout: 'blog'
+          // page component definitions
+        }
+      </script>
+      ```
+
+#### 5、异步数据
++ asyncData 方法
+  + 参考文档：https://zh.nuxtjs.org/guide/async-data
+  + 基本用法：
+    + 它会将 asyncData 返回的数据融合组件 data 方法返回数据一并给组件
+    + 调用时机：服务端渲染期间和客户端路由更新之前
+  + 注意事项：
+    + 只能在页面组件中使用
+    + 没有 this，因为它是在组件初始化之前被调用的
+
+
 
