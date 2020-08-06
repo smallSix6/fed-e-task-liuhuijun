@@ -7,5 +7,5 @@
   "editor.dragAndDrop": false,
   "editor.mouseWheelZoom": true,
   "eslint.enable": false,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
 }

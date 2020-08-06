@@ -1095,5 +1095,168 @@ app.listen(3000, () => {
   + 一个开源的学习项目，目的就是帮助开发者快速学习新技能
   + Github 仓库：https://github.com/gothinkster/realworld
   + 在线示例：https://demo.realworld.io/#/
-  + 页面模板
+  + 页面模板：https://github.com/gothinkster/realworld-starter-kit/blob/master/FRONTEND_INSTRUCTIONS.md
+  + 接口文档：https://github.com/gothinkster/realworld/tree/master/api
+  + 学习前提：
+    + Vue.js 使用经验
+    + Nuxt.js 基础
+    + Node.js、webpack 相关使用经验
+  + 学习收获：
+    + 掌握使用 Nuxt.js 开发同构渲染应用
+    + 增强 Vue.js 实践能力
+    + 掌握同构渲染应用中常见的功能处理
+      + 用户状态管理
+      + 页面访问权限处理
+      + SEO 优化
+      + 。。。
+    + 掌握同构渲染应用的发布与部署
+#### 2、项目初始化
++ 创建项目
+  + mkdir realworld-nuxtjs
+  + npm init -y
+  + npm i nuxt
+  + 配置启动脚本
+  + 创建 pages 目录，配置初始页面
++ 导入页面模板
+  + 导入样式资源
+    + 根目录下新建 app.html,内容如下：
+    ```js
+    <!DOCTYPE html>
+    <html {{ HTML_ATTRS }}>
+      <head {{ HEAD_ATTRS }}>
+        {{ HEAD }}
+        <link href="https://cdn.jsdelivr.net/npm/ionicons@2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic" rel="stylesheet" type="text/css">
+        <!-- Import the custom Bootstrap 4 theme from our hosted CDN -->
+        <link rel="stylesheet" href="/index.css">
+      </head>
+      <body {{ BODY_ATTRS }}>
+        {{ APP }}
+      </body>
+    </html>
+    ```
+  + 导入布局组件
+    + 在 pages 目录下新建 layouts 文件夹
+    + 在 layouts 文件夹下新建 index.vue 文件，代码如下：
+    ```js
+    <template>
+      <div>
+        <!-- 顶部导航栏 -->
+        <nav class="navbar navbar-light">
+          <div class="container">
+            <a class="navbar-brand" href="index.html">conduit</a>
+            <ul class="nav navbar-nav pull-xs-right">
+              <li class="nav-item">
+                <!-- Add "active" class when you're on that page" -->
+                <a class="nav-link active" href="">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="">
+                  <i class="ion-compose"></i>&nbsp;New Post
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="">
+                  <i class="ion-gear-a"></i>&nbsp;Settings
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="">Sign up</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <!-- 顶部导航栏 -->
+
+        <!-- 子路由 -->
+        <nuxt-child />
+        <!-- 子路由 -->
+
+        <!-- 底部 -->
+        <footer>
+          <div class="container">
+            <a href="/" class="logo-font">conduit</a>
+            <span class="attribution">
+              An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design licensed under MIT.
+            </span>
+          </div>
+        </footer>
+        <!-- 底部 -->
+      </div>
+    </template>
+
+    <script>
+      export default {
+        name: 'Header',
+        components: {
+        
+        },
+        props: {
+        
+        },
+        data() {
+          return {}
+        },
+        computed: {
+        
+        },
+        watch: {
+        
+        },
+        created() {},
+        mounted() {},
+        methods: {
+        
+        },
+      }
+    </script>
+
+    <style scoped>
+      
+    </style>
+    ```
+    + 根目录下新建`nuxt.config.js`文件,自定义路由
+    ```js
+    module.exports = {
+      router: {
+        // 自定义路由表规则
+        extendRoutes(routes, resolve) {
+          // 清除 Nuxt.js 基于 pages 目录默认生成的路由表规则
+          routes.splice(0)
+          routes.push(...[
+            {
+              path: '/',
+              component: resolve(__dirname, 'pages/layouts/'),
+              children: [
+                {
+                  path: '', // 默认子路由
+                  name: 'home',
+                  component: resolve(__dirname, 'pages/home/')
+                },
+                {
+                  path: '/login',
+                  name: 'login',
+                  component: resolve(__dirname, 'pages/login/')
+                },
+                {
+                  path: '/register',
+                  name: 'register',
+                  component: resolve(__dirname, 'pages/login/')
+                },
+              ]
+            }
+          ])
+        }
+      }
+    }
+    ```
+  + 配置页面组件
+  + 处理顶部导航链接
+
+
+
+
+
+
+
 

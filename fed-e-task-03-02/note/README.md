@@ -1799,16 +1799,15 @@ render (h) {
 + 用户只需要编写类似HTML的代码  -  Vue.js模板，通过编译器将模板转换为返回VNode的render函数
 + .vue文件会被webpack在构建的过程中转换成render函数
 
-### 二、体验模板编译的结果
 
-#### 1. 编译生成的函数的位置
+#### 3. 编译生成的函数的位置
 
 + `_c()`
   + `src/core/instance/render.js`
 + `_m()/_v()/_s()`
   + `src/core/instance/render-helpers/index.js`
 
-#### 2. 模板编译的结果
+#### 4. 模板编译的结果
 
 ```js
 (function anonymous() {
@@ -1829,7 +1828,7 @@ render (h) {
 })
 ```
 
-#### 3. Vue Template Explorer
+#### 5. Vue Template Explorer
 
 这是一个网页工具，是将HTML模板转换为render函数，
 
@@ -1845,7 +1844,7 @@ Vu3网址是：https://vue-next-template-explorer.netlify.app/
 
 我们可以看到Vue对render函数做了优化，此外Vue2中的模板中尽量不要出现多余的空白，因为都会被转换到render函数中，Vue3的模板中的空白则不影响render函数
 
-### 三、模板编译的入口
+#### 6、模板编译的入口
 + **Vue.prototype.$mount**(重写的$mount)中的源码入口如下：src/platforms/web/entry-runtime-with-compiler.js ：
 ```js
 import { compileToFunctions } from './compiler/index'
@@ -1934,9 +1933,8 @@ export function createCompileToFunctionFn (compile: Function): Function {
 
 ![../images/07.jpeg](../images/07.jpeg)
 
-### 四、模板编译的过程
 
-#### 1. 模板编译入口
+#### 7. 模板编译入口
 
 位置：src/compiler/create-compiler.js
 
@@ -1946,7 +1944,7 @@ createCompilerCreator函数返回了compile对象和compileToFunctions函数。
 
 模板和插值表达式在编译的过程中都会被转换成对应的代码形式，不会出现在 render 函数中
 
-#### 2. 模板编译过程 - baseCompile - AST
+#### 8. 模板编译过程 - baseCompile - AST
 
 位置：src/compiler/index.js
 
@@ -1976,19 +1974,19 @@ export const createCompiler = createCompilerCreator(function baseCompile (
 })
 ```
 
-#### 3. 为什么要使用抽象语法树
+#### 9. 为什么要使用抽象语法树
 
 + 模板字符串转换成AST后，可以通过AST对模板做优化处理
 + 标记模板中的静态内容，在patch的时候直接掉过静态内容
 + 在patch的过程中静态内容不需要对比和重新渲染
 
-#### 4. AST在线生成网站
+#### 10. AST在线生成网站
 
 AST 在线生成网址：https://astexplorer.net/
 
 ![image-20200719100232801](../images/08.png)
 
-#### 5. 模板编译过程 - baseCompile - optimize
+#### 11. 模板编译过程 - baseCompile - optimize
 
 位置：src/compiler/optimizer.js
 
@@ -1996,35 +1994,32 @@ AST 在线生成网址：https://astexplorer.net/
 
 静态根节点不会被重新渲染，patch 的过程中会跳过静态根节点。
 
-#### 6. 模板编译过程 - baseCompile - generate
+#### 12. 模板编译过程 - baseCompile - generate
 
 generate() 函数返回的是字符串形式的代码，还需要 toFunctions() 转换成函数的形式
 
 
 
-#### 7. 模板编译过程 - 总结
+#### 13. 模板编译过程 - 总结
 
 ![../images/09.jpeg](../images/09.jpeg)
 
-### 五、组件化回顾
+#### 14、组件化回顾
 
 + 一个Vue组件就是一个用于预定义选项的一个Vue实例
 + 一个组件可以组成页面上的一个功能完备的区域，组件可以包含脚本、样式、模板
 
-### 六、组件注册
-
-#### 1. 组件注册方式
+#### 15. 组件注册方式
 
 + 全局组件
 + 局部组件
 
-#### 2. Vue.extend
+#### 16. Vue.extend
 
 根据传入的选项创建组件的构造函数，组件的构造函数继承自Vue的构造函数。
 
-### 七、组件的创建过程
 
-#### 1. 回购首次渲染过程
+#### 17. 回购首次渲染过程
 
 + Vue构造函数
 + this._init()
@@ -2035,7 +2030,7 @@ generate() 函数返回的是字符串形式的代码，还需要 toFunctions() 
 + vm.render() -> createElement()
 + vm._update()
 
-#### 2. 组件的patch过程
+#### 18. 组件的patch过程
 
 先创建父组件，再创建子组件。
 

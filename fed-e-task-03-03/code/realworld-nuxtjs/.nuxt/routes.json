@@ -1,0 +1,51 @@
+[
+  {
+    "path": "/",
+    "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/layouts",
+    "children": [
+      {
+        "path": "",
+        "name": "home",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/home",
+        "_name": "_0479502a"
+      },
+      {
+        "path": "/login",
+        "name": "login",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/login",
+        "_name": "_8a402446"
+      },
+      {
+        "path": "/register",
+        "name": "register",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/login",
+        "_name": "_8a402446"
+      },
+      {
+        "path": "/profile/:username",
+        "name": "profile",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/profile",
+        "_name": "_5bc2bb1d"
+      },
+      {
+        "path": "/settings",
+        "name": "settings",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/settings",
+        "_name": "_a4568da2"
+      },
+      {
+        "path": "/editor",
+        "name": "editor",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/editor",
+        "_name": "_d6dc1d0e"
+      },
+      {
+        "path": "article/:slug",
+        "name": "article",
+        "component": "/Users/lagouHomework/fed-e-task-liuhuijun/fed-e-task-03-03/code/realworld-nuxtjs/pages/article",
+        "_name": "_428cfe6a"
+      }
+    ],
+    "_name": "_6bb89bfd"
+  }
+]
