@@ -1254,6 +1254,55 @@ app.listen(3000, () => {
   + 处理顶部导航链接
 
 
+#### 3、发布部署
++ 打包
+  + 打包 Nuxt.js 应用
+    + < https://zh.nuxtjs.org/guide/commands >
+  |命令     	   |描述|
+  | -----       |---|
+  |nuxt	        |启动一个热加载的 Web 服务器（开发模式） localhost:3000。|
+  |nuxt build	  |利用 webpack 编译应用，压缩 JS 和 CSS 资源（发布用）。|
+  |nuxt start	  |以生产模式启动一个 Web 服务器 (需要先执行nuxt build)。|
+  |nuxt generate|编译应用，并依据路由配置生成对应的 HTML 文件 (用于静态站点的部署)|
++ 最简单的部署方式
+  + 配置 Host + Port
+  + 压缩发布包(.nuxt、static、nuxt.config.js、package.json 和 package-lock.json)
+  + 把发布包传到服务端
+  + 解压
+  + 安装依赖
+  + 启动服务
++ 使用 PM2 启动服务
+  + Github 仓库地址：< https://github.com/Unitech/pm2 >
+  + 官方文档：< https://pm2.io/ >
+  + 安装：npm install --global pm2
+  + 启动：pm2 start 脚本路径
+  + pm2 常用命令
+    + ![](../images/pm2.png)
++ 自动化部署介绍
+  + 现代化的部署方式（CI/CD）
+    + ![](../images/CICD.png)
++ 准备自动部署内容
+  + 环境准备
+    + linux 服务器
+    + 把代码提交到 Github 远程仓库
+  + 配置 Github Access Token
+    + 生成：< https://github.com/settings/token >
+    + 配置到项目的 Secrets 中：< https://github.com/smallSix6/realworld-nuxrjs/settings/secrest >
+  + 配置 Github Actions 执行脚本
+    + 在项目根目录创建 .github/workflows 目录
+    + 下载 main.yml 到 workflows 目录中
+      + < https://gist.github.com/lipengzhou/b92f80142afa37aea397da47366bd872 >
+    + 修改配置
+    + 配置 PM2 配置文件
+    + 提交更新
+    + 查看自动部署状态
+    + 访问网站
+    + 提交更新
+
+
+
+
+
 
 
 
