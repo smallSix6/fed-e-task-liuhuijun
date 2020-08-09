@@ -1253,8 +1253,10 @@ app.listen(3000, () => {
   + 配置页面组件
   + 处理顶部导航链接
 
+#### 3、案例源码见：< https://github.com/smallSix6/fed-e-task-liuhuijun/tree/master/fed-e-task-03-03/code/realworld-nuxtjs >
 
-#### 3、发布部署
+
+#### 4、发布部署
 + 打包
   + 打包 Nuxt.js 应用
     + < https://zh.nuxtjs.org/guide/commands >
