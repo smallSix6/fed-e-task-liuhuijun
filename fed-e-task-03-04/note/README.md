@@ -167,8 +167,9 @@ server.listen(3000, () => {
   + 构建配置
     1. 安装生产依赖
       + npm i vue vue-server-renderer express cross-env
+
       |包                    |说明|
-      |-----                | -----|
+      |  -----              | -----|
       |vue                  | Vue.js 核心库|
       |vue-server-renderer  | Vue 服务端渲染工具|
       |express              | 基于 Node 的 Web 服务框架|
