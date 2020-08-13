@@ -92,11 +92,11 @@ server.listen(3000, () => {
 + 基本思路
   + ![](../images/vueSSR构建流程.png)
 + 源码结构(< https://ssr.vuejs.org/zh/guide/structure.html#%E4%BD%BF%E7%94%A8-webpack-%E7%9A%84%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84 >)
-  > src
-  >> app.js
-  >> App.vue
-  >> entry-client.js
-  >> entry-server.js
+  + +src
+    + -app.js
+    + -App.vue
+    + -entry-client.js
+    + -entry-server.js
 
 
 
