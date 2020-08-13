@@ -175,3 +175,5 @@ server.listen(3000, () => {
       cross-env             | 通过 npm scripts 设置跨平台环境变量
     2. 安装开发依赖
       + npm i -D webpack webpack-cli webpack-merge webpack-node-externals @babel/core @babel/plugin-transform-runtime @babel/preset-env babel-loader css-loader url-loader file-loader rimraf vue-loader vue-template-compiler friendly-errors-webpack-plugin
+      + ![](../images/开发依赖包说明.png)
+
