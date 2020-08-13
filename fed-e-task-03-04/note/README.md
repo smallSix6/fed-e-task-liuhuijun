@@ -94,11 +94,84 @@ server.listen(3000, () => {
 + 源码结构(< https://ssr.vuejs.org/zh/guide/structure.html#%E4%BD%BF%E7%94%A8-webpack-%E7%9A%84%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84 >)
   + +src
     + -app.js
+    ```js
+    // 通用入口
+    import Vue from 'vue'
+    import App from './App.vue'
+
+    // 导出一个工厂函数，用于创建新的
+    // 应用程序、router 和 store 实例
+    export function createApp() {
+      const app = new Vue({
+        // 根实例简单的渲染应用程序组件。
+        render: h => h(App)
+      })
+      return { app }
+    }
+    ```
     + -App.vue
+    ```js
+    <template>
+      <div id="app">
+        <h1>{{message}}</h1>
+        <h2>客户端动态交互</h2>
+        <div>
+          <input v-model="message" />
+        </div>
+        <div>
+          <button @click="onClick">点击测试</button>
+        </div>
+      </div>
+    </template>
+
+    <script>
+    export default {
+      name: "App",
+      data() {
+        return {
+          message: "拉钩教育"
+        };
+      },
+      methods: {
+        onClick() {
+          console.log("Hello World!");
+        }
+      }
+    };
+    </script>
+
+    <style scoped>
+    </style>
+    ```
     + -entry-client.js
+    ```js
+    import { createApp } from './app'
+
+    // 客户端特定引导逻辑……
+
+    const { app } = createApp()
+
+    // 这里假定 App.vue 模板中根元素具有 `id="app"`
+    app.$mount('#app')
+    ```
     + -entry-server.js
+    ```js
+    import { createApp } from './app'
 
-
-
-
-
+    export default context => {
+      const { app } = createApp()
+      return app
+    }
+    ```
++ 安装依赖
+  + 构建配置
+    1. 安装生产依赖
+      + npm i vue vue-server-renderer express cross-env
+      包                    | 说明
+      -----                 | -----
+      vue                   | Vue.js 核心库
+      vue-server-renderer   | Vue 服务端渲染工具
+      express               | 基于 Node 的 Web 服务框架
+      cross-env             | 通过 npm scripts 设置跨平台环境变量
+    2. 安装开发依赖
+      + npm i -D webpack webpack-cli webpack-merge webpack-node-externals @babel/core @babel/plugin-transform-runtime @babel/preset-env babel-loader css-loader url-loader file-loader rimraf vue-loader vue-template-compiler friendly-errors-webpack-plugin
