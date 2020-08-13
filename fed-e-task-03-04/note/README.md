@@ -173,6 +173,13 @@ server.listen(3000, () => {
       |vue-server-renderer  | Vue 服务端渲染工具|
       |express              | 基于 Node 的 Web 服务框架|
       |cross-env            | 通过 npm scripts 设置跨平台环境变量|
+
+  |命令     	   |描述|
+  | -----       |---|
+  |nuxt	        |启动一个热加载的 Web 服务器（开发模式） localhost:3000。|
+  |nuxt build	  |利用 webpack 编译应用，压缩 JS 和 CSS 资源（发布用）。|
+  |nuxt start	  |以生产模式启动一个 Web 服务器 (需要先执行nuxt build)。|
+  |nuxt generate|编译应用，并依据路由配置生成对应的 HTML 文件 (用于静态站点的部署)|
     2. 安装开发依赖
       + npm i -D webpack webpack-cli webpack-merge webpack-node-externals @babel/core @babel/plugin-transform-runtime @babel/preset-env babel-loader css-loader url-loader file-loader rimraf vue-loader vue-template-compiler friendly-errors-webpack-plugin
       + ![](../images/开发依赖包说明.png)
