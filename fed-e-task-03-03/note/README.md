@@ -763,6 +763,8 @@ app.listen(3000, () => {
   + 如果应用在高流量环境下使用，需要准备相应的服务器负载
   + 需要更多的服务端渲染优化工作处理
   + 。。。
++  React 中的 SSR 技术的架构图(摘自< https://zhuanlan.zhihu.com/p/47044039 >)：
+ + ![](../ssr架构图.png)
 
 ### 任务三：NuxtJS基础，项目地址见：< https://github.com/smallSix6/nuxt-demo >
 
@@ -1277,7 +1279,7 @@ app.listen(3000, () => {
   + Github 仓库地址：< https://github.com/Unitech/pm2 >
   + 官方文档：< https://pm2.io/ >
   + 安装：npm install --global pm2
-  + 启动：pm2 start 脚本路径
+  + 启动：pm2 start npm -- 脚本命令（pm2 start npm -- start）
   + pm2 常用命令
     + ![](../images/pm2.png)
 + 自动化部署介绍
@@ -1294,12 +1296,86 @@ app.listen(3000, () => {
     + 在项目根目录创建 .github/workflows 目录
     + 下载 main.yml 到 workflows 目录中
       + < https://gist.github.com/lipengzhou/b92f80142afa37aea397da47366bd872 >
+      ```js
+      name: Publish And Deploy Demo
+      on:
+        push:
+          tags:
+            - 'v*'
+
+      jobs:
+        build-and-deploy:
+          runs-on: ubuntu-latest
+          steps:
+
+          # 下载源码
+          - name: Checkout
+            uses: actions/checkout@master
+
+          # 打包构建
+          - name: Build
+            uses: actions/setup-node@master
+          - run: npm install
+          - run: npm run build
+          - run: tar -zcvf release.tgz .nuxt static nuxt.config.js package.json package-lock.json pm2.config.json
+
+          # 发布 Release
+          - name: Create Release
+            id: create_release
+            uses: actions/create-release@master
+            env:
+              GITHUB_TOKEN: ${{ secrets.TOKEN }}
+            with:
+              tag_name: ${{ github.ref }}
+              release_name: Release ${{ github.ref }}
+              draft: false
+              prerelease: false
+
+          # 上传构建结果到 Release
+          - name: Upload Release Asset
+            id: upload-release-asset
+            uses: actions/upload-release-asset@master
+            env:
+              GITHUB_TOKEN: ${{ secrets.TOKEN }}
+            with:
+              upload_url: ${{ steps.create_release.outputs.upload_url }}
+              asset_path: ./release.tgz
+              asset_name: release.tgz
+              asset_content_type: application/x-tgz
+
+          # 部署到服务器
+          - name: Deploy
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ secrets.USERNAME }}
+              password: ${{ secrets.PASSWORD }}
+              port: ${{ secrets.PORT }}
+              script: |
+                cd /root/realworld-nuxtjs
+                wget https://github.com/smallSix6/realworld-nuxtjs/releases/latest/download/release.tgz -O release.tgz
+                tar zxvf release.tgz
+                npm install --production
+                pm2 reload pm2.config.json
+      ```
     + 修改配置
-    + 配置 PM2 配置文件
+    + 配置 PM2 配置文件(pm2.config.json)
+    ```js
+    {
+      "apps": [
+        {
+          "name": "RealWorld",
+          "script":"npm",
+          "args":"start"
+        }
+      ]
+    }
+    ```
     + 提交更新
     + 查看自动部署状态
     + 访问网站
     + 提交更新
+
 
 
 
