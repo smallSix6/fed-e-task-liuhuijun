@@ -167,12 +167,12 @@ server.listen(3000, () => {
   + 构建配置
     1. 安装生产依赖
       + npm i vue vue-server-renderer express cross-env
-      |包                    | 说明|
-      |-----                 | -----|
-      |vue                   | Vue.js 核心库|
-      |vue-server-renderer   | Vue 服务端渲染工具|
-      |express               | 基于 Node 的 Web 服务框架|
-      |cross-env             | 通过 npm scripts 设置跨平台环境变量|
+|包                    | 说明|
+|---                | ---|
+|vue                   | Vue.js 核心库|
+|vue-server-renderer   | Vue 服务端渲染工具|
+|express               | 基于 Node 的 Web 服务框架|
+|cross-env             | 通过 npm scripts 设置跨平台环境变量|
     2. 安装开发依赖
       + npm i -D webpack webpack-cli webpack-merge webpack-node-externals @babel/core @babel/plugin-transform-runtime @babel/preset-env babel-loader css-loader url-loader file-loader rimraf vue-loader vue-template-compiler friendly-errors-webpack-plugin
       + ![](../images/开发依赖包说明.png)
