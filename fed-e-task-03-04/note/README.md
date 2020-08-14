@@ -392,6 +392,196 @@ server.listen(3000, () => {
     ```
     + 浏览器会在 <table> 内部自动注入 <tbody>，然而，由于 Vue 生成的虚拟 DOM (virtual DOM) 不包含 <tbody>，所以会导致无法匹配。为能够正确匹配，请确保在模板中写入有效的 HTML。
 
+#### 4、构建配置开发模式
++ 基本思路：
+  + package.json 中新增 script 命令：
+    ```js
+    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "node server.js"
+    ```
+  + 更新 server.js 中的代码如下：
+  ```js
+  const Vue = require('vue')
+  const fs = require('fs')
 
+  const isProd = process.env.NODE_ENV === 'production'
+  let renderer
+
+  if (isProd) {
+    const serverBundle = require('./dist/vue-ssr-server-bundle.json')
+    const template = fs.readFileSync('./index.template.html', 'utf-8')
+    const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+    renderer = require('vue-server-renderer').createBundleRenderer(serverBundle, {
+      // runInNewContext: false, // 推荐
+      template, // （可选）页面模板
+      clientManifest // （可选）客户端构建 manifest
+    })
+  } else {
+    // 开发模式 -> 监视打包构建 -> 重新生成 Renderer 渲染器
+
+  }
+
+  const express = require('express')
+  const server = express()
+  server.use('/dist', express.static('./dist'))
+
+  const render = (req, res) => {
+    renderer.renderToString({
+      title: '刘惠俊',  // html 中用 {{title}}, title 字段会被解析
+      meta: `<meta name="description" content="刘惠俊">`  // html 中用 {{{meta}}}, meta 字段不会被解析
+    }, (err, html) => {
+      if (err) {
+        res.status(500).end('server Error')
+      }
+      res.setHeader('Content-Type', 'text/html;charset=utf8')
+      res.end(html)
+    })
+  }
+  server.get('/', isProd
+    ? render
+    : (req, res) => {
+      // TODO:等待有了 Renderer 渲染器以后，调用 render 进行渲染
+      render()
+    }
+  )
+  server.listen(3000, () => {
+    console.log('server running at port 3000')
+  })
+  ```
++ 提取处理模块
+  + 根目录下新建 setup-dev-server.js，代码如下：
+  ```js
+  module.exports = (server, callback) => {
+    const onReady = new Promise()
+
+    // 监视构建 -> 更新 Renderer
+
+    return onReady
+  }
+  ```
+  + 更新 server.js 中的代码如下：
+  ```js
+  const Vue = require('vue')
+  const fs = require('fs')
+  const { createBundleRenderer } = require('vue-server-renderer')
+  const setupDevServer = require('./build/setup-dev-server')
+
+
+  const express = require('express')
+  const server = express()
+  server.use('/dist', express.static('./dist'))
+
+  const isProd = process.env.NODE_ENV === 'production'
+  let renderer
+  let onReady
+  if (isProd) {
+    const serverBundle = require('./dist/vue-ssr-server-bundle.json')
+    const template = fs.readFileSync('./index.template.html', 'utf-8')
+    const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+    renderer = createBundleRenderer(serverBundle, {
+      // runInNewContext: false, // 推荐
+      template, // （可选）页面模板
+      clientManifest // （可选）客户端构建 manifest
+    })
+  } else {
+    // 开发模式 -> 监视打包构建 -> 重新生成 Renderer 渲染器
+    onReady = setupDevServer(server, (serverBundle, template, clientManifest) => {
+      renderer = createBundleRenderer(serverBundle, {
+        // runInNewContext: false, // 推荐
+        template, // （可选）页面模板
+        clientManifest // （可选）客户端构建 manifest
+      })
+    })
+  }
+
+  const render = (req, res) => {
+    renderer.renderToString({
+      title: '刘惠俊',  // html 中用 {{title}}, title 字段会被解析
+      meta: `<meta name="description" content="刘惠俊">`  // html 中用 {{{meta}}}, meta 字段不会被解析
+    }, (err, html) => {
+      if (err) {
+        res.status(500).end('server Error')
+      }
+      res.setHeader('Content-Type', 'text/html;charset=utf8')
+      res.end(html)
+    })
+  }
+  server.get('/', isProd
+    ? render
+    : async (req, res) => {
+      // 等待有了 Renderer 渲染器以后，调用 render 进行渲染
+      await onReady
+      render()
+    }
+  )
+  server.listen(3000, () => {
+    console.log('server running at port 3000')
+  })
+  ```
++ update 更新函数
+  + /build/setup-dev-server.js 中的代码更新为：
+  ```js
+  module.exports = (server, callback) => {
+    let ready
+    const onReady = new Promise(r => ready = r)
+
+    // 监视构建 -> 更新 Renderer
+    let template
+    let serverBundle
+    let clientManifest
+
+    const update = () => {
+      if (template && serverBundle && clientManifest) {
+        ready()
+        callback(serverBundle, template, clientManifest)
+      }
+    }
+
+    // 监视构建 template -> 调用 update -> 更新 Renderer 渲染器
+    // 监视构建 serverBundle -> 调用 update -> 更新 Renderer 渲染器
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+    return onReady
+  }
+  ```
++ 处理模板文件
+  + /build/setup-dev-server.js 中的代码更新为：
+  ```js
+  const path = require('path')
+  const fs = require('fs')
+  const chokidar = require('chokidar')
+
+  module.exports = (server, callback) => {
+    let ready
+    const onReady = new Promise(r => ready = r)
+
+    // 监视构建 -> 更新 Renderer
+    let template
+    let serverBundle
+    let clientManifest
+
+    const update = () => {
+      if (template && serverBundle && clientManifest) {
+        ready()
+        callback(serverBundle, template, clientManifest)
+      }
+    }
+
+    // 监视构建 template -> 调用 update -> 更新 Renderer 渲染器
+    const templatePath = path.resolve(__dirname, '../index.template.html')
+    template = fs.readFileSync(templatePath, 'utf-8')
+    update()
+    // fs.watch   fs.watchFile
+    // chokidar
+    chokidar.watch(templatePath).on('change', () => {
+      template = fs.readFileSync(templatePath, 'utf-8')
+      update()
+    })
+
+    // 监视构建 serverBundle -> 调用 update -> 更新 Renderer 渲染器
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+    return onReady
+  }
+  ```
++ 
 
 
