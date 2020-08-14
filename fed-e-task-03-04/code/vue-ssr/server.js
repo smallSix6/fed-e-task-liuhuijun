@@ -1,24 +1,22 @@
 const Vue = require('vue')
 const fs = require('fs')
-const renderer = require('vue-server-renderer').createRenderer({
-  template: fs.readFileSync('./index.template.html', 'utf-8')
+
+const serverBundle = require('./dist/vue-ssr-server-bundle.json')
+const template = fs.readFileSync('./index.template.html', 'utf-8')
+const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+const renderer = require('vue-server-renderer').createBundleRenderer(serverBundle, {
+  // runInNewContext: false, // 推荐
+  template, // （可选）页面模板
+  clientManifest // （可选）客户端构建 manifest
 })
+
 const express = require('express')
 
 const server = express()
-
+server.use('/dist', express.static('./dist'))
 server.get('/', (req, res) => {
-  const app = new Vue({
-    template: `
-      <div id="app">
-        <h1> {{ message }}</h1 >
-      </div >
-  `,
-    data: {
-      message: '刘惠俊'
-    }
-  })
-  renderer.renderToString(app, {
+
+  renderer.renderToString({
     title: '刘惠俊',  // html 中用 {{title}}, title 字段会被解析
     meta: `<meta name="description" content="刘惠俊">`  // html 中用 {{{meta}}}, meta 字段不会被解析
   }, (err, html) => {
