@@ -519,7 +519,7 @@ server.listen(3000, () => {
   })
   ```
 + update 更新函数
-  + /build/setup-dev-server.js 中的代码更新为：
+  + /build/setup-dev-server.js 中的代码更新部分为：
   ```js
   module.exports = (server, callback) => {
     let ready
@@ -544,28 +544,14 @@ server.listen(3000, () => {
   }
   ```
 + 处理模板文件
-  + /build/setup-dev-server.js 中的代码更新为：
+  + /build/setup-dev-server.js 中的代码更新部分为：
   ```js
   const path = require('path')
   const fs = require('fs')
   const chokidar = require('chokidar')
 
   module.exports = (server, callback) => {
-    let ready
-    const onReady = new Promise(r => ready = r)
-
-    // 监视构建 -> 更新 Renderer
-    let template
-    let serverBundle
-    let clientManifest
-
-    const update = () => {
-      if (template && serverBundle && clientManifest) {
-        ready()
-        callback(serverBundle, template, clientManifest)
-      }
-    }
-
+    ...
     // 监视构建 template -> 调用 update -> 更新 Renderer 渲染器
     const templatePath = path.resolve(__dirname, '../index.template.html')
     template = fs.readFileSync(templatePath, 'utf-8')
@@ -582,6 +568,638 @@ server.listen(3000, () => {
     return onReady
   }
   ```
-+ 
++ 服务端监视打包
+  + /build/setup-dev-server.js 中的代码更新部分为：
+  ```js
+  const path = require('path')
+  const fs = require('fs')
+  const chokidar = require('chokidar')
+  const webpack = require('webpack')
+
+  const resolve = file => path.resolve(__dirname, file)
+
+  module.exports = (server, callback) => {
+    let ready
+    const onReady = new Promise(r => ready = r)
+
+   ...
+    // 监视构建 serverBundle -> 调用 update -> 更新 Renderer 渲染器
+    const serverConfig = require('./webpack.server.config')
+    const serverCompiler = webpack(serverConfig)
+    serverCompiler.watch({}, (err, stats) => {
+      if (err) throw err
+      if (stats.hasErrors()) return
+      serverBundle = JSON.parse(
+        fs.readFileSync(resolve('../dist/vue-ssr-server-bundle.json'), 'utf-8')
+      )
+      console.log(serverBundle)
+      update()
+    })
+
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+
+    update()
+    return onReady
+  }
+  ```
++ 把数据写入内存中
+  + 默认情况下，webpack 使用普通文件系统来读取文件并将文件写入磁盘。但是，还可以使用不同类型的文件系统（内存(memory), webDAV 等）来更改输入或输出行为。为了实现这一点，可以改变 inputFileSystem 或 outputFileSystem。例如，可以使用 memory-fs 替换默认的 outputFileSystem，以将文件写入到内存中，而不是写入到磁盘
+  + 值得一提的是，被 webpack-dev-server 及众多其他包依赖的 webpack-dev-middleware 就是通过这种方式，将你的文件神秘地隐藏起来，但却仍然可以用它们为浏览器提供服务！
+  +  /build/setup-dev-server.js 中的代码： 监视构建 serverBundle -> 调用 update -> 更新 Renderer 渲染器，这一步骤的代码使用 webpack-dev-middleware 更新为：
+  ```js
+  const path = require('path')
+  const fs = require('fs')
+  const chokidar = require('chokidar')
+  const webpack = require('webpack')
+  const devMiddleware = require('webpack-dev-middleware');
+
+  const resolve = file => path.resolve(__dirname, file)
+
+  module.exports = (server, callback) => {
+    let ready
+    const onReady = new Promise(r => ready = r)
+    ...
+    // 监视构建 serverBundle -> 调用 update -> 更新 Renderer 渲染器
+    const serverConfig = require('./webpack.server.config')
+    const serverCompiler = webpack(serverConfig)
+    const serverDevMiddleware = devMiddleware(serverCompiler, {
+      logLevel: 'silent' // 关闭日志输出，由 FriendlyErrorsWebpackPlugin 处理
+    })
+    serverCompiler.hooks.done.tap('server', () => {
+      serverBundle = JSON.parse(
+        serverDevMiddleware.fileSystem.readFileSync(resolve('../dist/vue-ssr-server-bundle.json'), 'utf-8')
+      )
+      console.log(serverBundle)
+      update()
+    })
+    // serverCompiler.watch({}, (err, stats) => {
+    //   if (err) throw err
+    //   if (stats.hasErrors()) return
+    // serverBundle = JSON.parse(
+    //   fs.readFileSync(resolve('../dist/vue-ssr-server-bundle.json'), 'utf-8')
+    // )
+    // console.log(serverBundle)
+    // update()
+    // })
+
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+
+    update()
+    return onReady
+  }
+  ```
++ 客户端构建
+  + /build/setup-dev-server.js 中的代码更新部分为：
+  ```js
+  const path = require('path')
+  const fs = require('fs')
+  const chokidar = require('chokidar')
+  const webpack = require('webpack')
+  const devMiddleware = require('webpack-dev-middleware');
+
+  const resolve = file => path.resolve(__dirname, file)
+
+  module.exports = (server, callback) => {
+  ...
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+    const clientConfig = require('./webpack.client.config')
+    const clientCompiler = webpack(clientConfig)
+    const clientDevMiddleware = devMiddleware(clientCompiler, {
+      publicPath: clientConfig.output.publicPath,
+      logLevel: 'silent' // 关闭日志输出，由 FriendlyErrorsWebpackPlugin 处理
+    })
+    clientCompiler.hooks.done.tap('client', () => {
+      clientManifest = JSON.parse(
+        clientDevMiddleware.fileSystem.readFileSync(resolve('../dist/vue-ssr-client-manifest.json'), 'utf-8')
+      )
+      update()
+    })
+    // 重要！！！将 clientDevMiddleware 挂载到 Express 服务中，提供对其内部内存中数据的访问
+    server.use(clientDevMiddleware)
+    update()
+    return onReady
+  }
+  ```
+  + /server.js 中的代码更新部分为：
+  ```js
+  server.get('/', isProd
+    ? render
+    : async (req, res) => {
+      // 等待有了 Renderer 渲染器以后，调用 render 进行渲染
+      await onReady
+      render(req, res)
+    }
+  )
+  ```
++ 热更新
+  +  /build/setup-dev-server.js 中的代码更新部分为：
+  ```js
+  const path = require('path')
+  const fs = require('fs')
+  const chokidar = require('chokidar')
+  const webpack = require('webpack')
+  const devMiddleware = require('webpack-dev-middleware');
+  const hotMiddleware = require('webpack-hot-middleware')
+
+  const resolve = file => path.resolve(__dirname, file)
+
+  module.exports = (server, callback) => {
+    ...
+    // 监视构建 clientManifest -> 调用 update -> 更新 Renderer 渲染器
+    const clientConfig = require('./webpack.client.config')
+    clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin())
+    clientConfig.entry.app = [
+      'webpack-hot-middleware/client?quiet=true&reload=true',  // 和服务端交互处理热更新一个客户端脚本
+      clientConfig.entry.app
+    ]
+    clientConfig.output.filename = '[name].js'
+    const clientCompiler = webpack(clientConfig)
+    const clientDevMiddleware = devMiddleware(clientCompiler, {
+      publicPath: clientConfig.output.publicPath,
+      logLevel: 'silent' // 关闭日志输出，由 FriendlyErrorsWebpackPlugin 处理
+    })
+    clientCompiler.hooks.done.tap('client', () => {
+      clientManifest = JSON.parse(
+        clientDevMiddleware.fileSystem.readFileSync(resolve('../dist/vue-ssr-client-manifest.json'), 'utf-8')
+      )
+      update()
+    })
+    server.use(hotMiddleware(clientCompiler, {
+      log: false  // 关闭日志输出
+    }))
+    // 重要！！！将 clientDevMiddleware 挂载到 Express 服务中，提供对其内部内存中数据的访问
+    server.use(clientDevMiddleware)
+    update()
+    return onReady
+  }
+  ```
+
+#### 5、编写通用应用注意事项
++ 服务器上的数据响应
+  + 在纯客户端应用程序 (client-only app) 中，每个用户会在他们各自的浏览器中使用新的应用程序实例。对于服务器端渲染，我们也希望如此：每个请求应该都是全新的、独立的应用程序实例，以便不会有交叉请求造成的状态污染 (cross-request state pollution)。
+  + 因为实际的渲染过程需要确定性，所以我们也将在服务器上“预取”数据 ("pre-fetching" data) - 这意味着在我们开始渲染时，我们的应用程序就已经解析完成其状态。也就是说，将数据进行响应式的过程在服务器上是多余的，所以默认情况下禁用。禁用响应式数据，还可以避免将「数据」转换为「响应式对象」的性能开销。
++ 组件生命周期钩子函数
+  + 由于没有动态更新，所有的生命周期钩子函数中，只有 beforeCreate 和 created 会在服务器端渲染 (SSR) 过程中被调用。这就是说任何其他生命周期钩子函数中的代码（例如 beforeMount 或 mounted），只会在客户端执行。
+  + 此外还需要注意的是，你应该避免在 beforeCreate 和 created 生命周期时产生全局副作用的代码，例如在其中使用 setInterval 设置 timer。在纯客户端 (client-side only) 的代码中，我们可以设置一个 timer，然后在 beforeDestroy 或 destroyed 生命周期时将其销毁。但是，由于在 SSR 期间并不会调用销毁钩子函数，所以 timer 将永远保留下来。为了避免这种情况，请将副作用代码移动到 beforeMount 或 mounted 生命周期中。
++ 访问特定平台(Platform-Specific) API
+  + 通用代码不可接受特定平台的 API，因此如果你的代码中，直接使用了像 window 或 document，这种仅浏览器可用的全局变量，则会在 Node.js 中执行时抛出错误，反之也是如此。
+  + 对于共享于服务器和客户端，但用于不同平台 API 的任务(task)，建议将平台特定实现包含在通用 API 中，或者使用为你执行此操作的 library。例如，axios 是一个 HTTP 客户端，可以向服务器和客户端都暴露相同的 API。
+  + 对于仅浏览器可用的 API，通常方式是，在「纯客户端 (client-only)」的生命周期钩子函数中惰性访问 (lazily access) 它们。
+  + 请注意，考虑到如果第三方 library 不是以上面的通用用法编写，则将其集成到服务器渲染的应用程序中，可能会很棘手。你可能要通过模拟 (mock) 一些全局变量来使其正常运行，但这只是 hack 的做法，并且可能会干扰到其他 library 的环境检测代码。
++ 自定义指令
+  + 大多数自定义指令直接操作 DOM，因此会在服务器端渲染 (SSR) 过程中导致错误。有两种方法可以解决这个问题：
+    + 推荐使用组件作为抽象机制，并运行在「虚拟 DOM 层级(Virtual-DOM level)」（例如，使用渲染函数(render function)）。
+    + 如果你有一个自定义指令，但是不是很容易替换为组件，则可以在创建服务器 renderer 时，使用 directives 选项所提供"服务器端版本(server-side version)"。
+
+#### 6、路由处理
++ 配置 VueRouter
+  + src/router/index.js
+  ```js
+  import Vue from 'vue'
+  import VueRouter from 'vue-router'
+
+  Vue.use(VueRouter)
+
+  export const createRouter = () => {
+    const router = new VueRouter({
+      mode: 'history', // 兼容前后端
+      routes: [
+        {
+          path: '/',
+          name: 'home',
+          component: Home
+        },
+        {
+          path: '/about',
+          name: 'about',
+          component: () => import('@/pages/About')
+        },
+        {
+          path: '/posts',
+          name: 'post-list',
+          component: () => import('@/pages/Posts')
+        },
+        {
+          path: '*',
+          name: 'error404',
+          component: () => import('@/pages/404')
+        }
+      ]
+    })
+    return router
+  }
+  ```
++ 将路由注册到根实例
+  + src/app.js
+  ```js
+  // 通用入口
+  import Vue from 'vue'
+  import App from './App.vue'
+  import { createRouter } from './router'
+
+  // 导出一个工厂函数，用于创建新的
+  // 应用程序、router 和 store 实例
+  export function createApp() {
+    const router = createRouter()
+    const app = new Vue({
+      router,  // 把路由挂载到 Vue 根实例中
+      // 根实例简单的渲染应用程序组件。
+      render: h => h(App)
+    })
+    return { app, router }
+  }
+  ```
++ 适配服务端入口
+  + src/entry-server.js
+  ```js
+  // 通用入口
+  import Vue from 'vue'
+  import App from './App.vue'
+  import { createRouter } from './router'
+
+  // 导出一个工厂函数，用于创建新的
+  // 应用程序、router 和 store 实例
+  export function createApp() {
+    const router = createRouter()
+    const app = new Vue({
+      router,  // 把路由挂载到 Vue 根实例中
+      // 根实例简单的渲染应用程序组件。
+      render: h => h(App)
+    })
+    return { app, router }
+  }
+  ```
++ 服务端 server 适配
+  + src/server.js
+  ```js
+  const Vue = require('vue')
+  const fs = require('fs')
+  const { createBundleRenderer } = require('vue-server-renderer')
+  const setupDevServer = require('./build/setup-dev-server')
+
+
+  const express = require('express')
+  const server = express()
+  server.use('/dist', express.static('./dist'))
+
+  const isProd = process.env.NODE_ENV === 'production'
+  let renderer
+  let onReady
+  if (isProd) {
+    const serverBundle = require('./dist/vue-ssr-server-bundle.json')
+    const template = fs.readFileSync('./index.template.html', 'utf-8')
+    const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+    renderer = createBundleRenderer(serverBundle, {
+      // runInNewContext: false, // 推荐
+      template, // （可选）页面模板
+      clientManifest // （可选）客户端构建 manifest
+    })
+  } else {
+    // 开发模式 -> 监视打包构建 -> 重新生成 Renderer 渲染器
+    onReady = setupDevServer(server, (serverBundle, template, clientManifest) => {
+      renderer = createBundleRenderer(serverBundle, {
+        // runInNewContext: false, // 推荐
+        template, // （可选）页面模板
+        clientManifest // （可选）客户端构建 manifest
+      })
+    })
+  }
+
+  const render = async (req, res) => {
+    try {
+      const html = await renderer.renderToString({
+        title: '拉勾教育',  // html 中用 {{title}}, title 字段会被解析
+        meta: `
+          <meta name="description" content="拉勾教育">
+        `,  // html 中用 {{{meta}}}, meta 字段不会被解析
+        url: req.url
+      })
+      res.setHeader('Content-Type', 'text/html; charset=utf8')
+      res.end(html)
+    } catch (err) {
+      res.status(500).end('Internal Server Error.')
+    }
+  }
+
+  // 服务端路由设置为 *，意味着所有的路由都会进入这里
+  server.get('*', isProd
+    ? render
+    : async (req, res) => {
+      // 等待有了 Renderer 渲染器以后，调用 render 进行渲染
+      await onReady
+      render(req, res)
+    }
+  )
+  server.listen(3000, () => {
+    console.log('server running at port 3000')
+  })
+  ```
++ 适配客户端入口
+  + src/entry-client.js
+  ```js
+  /**
+  * 客户端入口
+  */
+  import { createApp } from './app'
+
+  // 客户端特定引导逻辑……
+
+  const { app, router, store } = createApp()
+
+  if (window.__INITIAL_STATE__) {
+    store.replaceState(window.__INITIAL_STATE__)
+  }
+
+  router.onReady(() => {
+    app.$mount('#app')
+  })
+  ```
++ 处理完成
+  + src/App.vue
+  ```js
+  <template>
+    <div id="app">
+      <ul>
+        <li>
+          <router-link to="/">Home</router-link>
+        </li>
+        <li>
+          <router-link to="/about">About</router-link>
+        </li>
+      </ul>
+
+      <!-- 路由出口 -->
+      <router-view />
+    </div>
+  </template>
+
+  <script>
+  export default {
+    name: "App",
+    data() {
+      return {
+        message: "拉钩教育"
+      };
+    },
+    methods: {
+      onClick() {
+        console.log("Hello World!");
+      }
+    }
+  };
+  </script>
+
+  <style scoped>
+  </style>
+  ```
+#### 7、管理页面 Head 内容
++ src/app.js 中注册 vue-meta
+```js
+...
+import VueMeta from 'vue-meta'
+import App from './App.vue'
+import { createRouter } from './router'
+
+Vue.use(VueMeta)
+
+Vue.mixin({
+  metaInfo: {
+    titleTemplate: '%s - 拉勾教育'
+  }
+})
+...
+```
++ src/entry-server.js 中挂载到 context 中
+```js
+// entry-server.js
+import { createApp } from './app'
+
+export default async context => {
+  // 因为有可能会是异步路由钩子函数或组件，所以我们将返回一个 Promise，
+  // 以便服务器能够等待所有的内容在渲染前，
+  // 就已经准备就绪。
+  const { app, router } = createApp()
+  const meta = app.$meta()
+  // 设置服务器端 router 的位置
+  router.push(context.url)
+  context.meta = meta
+  // 等到 router 将可能的异步组件和钩子函数解析完
+  await new Promise(router.onReady.bind(router))
+  return app
+}
+```
++ src/index.template.html 中注入
+```js
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {{{ meta.inject().title.text() }}}
+  {{{ meta.inject().meta.text() }}}
+</head>
+
+<body>
+  <!--vue-ssr-outlet-->
+</body>
+
+</html>
+```
++ src/pages/Home.vue 中配置 head
+```js
+<script>
+export default {
+  name: "HomePage",
+  metaInfo: {
+    title: "首页"
+  }
+};
+</script>
+```
+#### 8、数据预取和状态管理
++ 思路分析：
+  + 在服务器端渲染(SSR)期间，我们本质上是在渲染我们应用程序的"快照"，所以如果应用程序依赖于一些异步数据，那么在开始渲染过程之前，需要先预取和解析好这些数据。
+  + 另一个需要关注的问题是在客户端，在挂载 (mount) 到客户端应用程序之前，需要获取到与服务器端应用程序完全相同的数据 - 否则，客户端应用程序会因为使用与服务器端应用程序不同的状态，然后导致混合失败。
+  + 为了解决这个问题，获取的数据需要位于视图组件之外，即放置在专门的数据预取存储容器(data store)或"状态容器(state container)）"中。首先，在服务器端，我们可以在渲染之前预取数据，并将数据填充到 store 中。此外，我们将在 HTML 中序列化(serialize)和内联预置(inline)状态。这样，在挂载(mount)到客户端应用程序之前，可以直接从 store 获取到内联预置(inline)状态。
++ 数据预取
+  + src 目录下新建 store 文件夹，store 文件夹下新建 index.js 文件：
+  ```js
+  import Vue from 'vue'
+  import Vuex from 'vuex'
+  import axios from 'axios'
+
+  Vue.use(Vuex)
+
+  export const createStore = () => {
+    return new Vuex.Store({
+      state: () => ({
+        posts: []
+      }),
+
+      mutations: {
+        setPosts(state, data) {
+          state.posts = data
+        }
+      },
+
+      actions: {
+        // 在服务端渲染期间务必让 action 返回一个 Promise
+        async getPosts({ commit }) {
+          // return new Promise()
+          const { data } = await axios.get('https://cnodejs.org/api/v1/topics')
+          commit('setPosts', data.data)
+        }
+      }
+    })
+  }
+  ```
+  + src/app.js 中注入 store:
+  ```js
+  /**
+  * 通用启动入口
+  */
+  import Vue from 'vue'
+  import App from './App.vue'
+  import { createRouter } from './router/'
+  import VueMeta from 'vue-meta'
+  import { createStore } from './store'
+
+  Vue.use(VueMeta)
+
+  Vue.mixin({
+    metaInfo: {
+      titleTemplate: '%s - 拉勾教育'
+    }
+  })
+
+  // 导出一个工厂函数，用于创建新的
+  // 应用程序、router 和 store 实例
+  export function createApp() {
+    const router = createRouter()
+    const store = createStore()
+    const app = new Vue({
+      router, // 把路由挂载到 Vue 根实例中
+      store, // 把容器挂载到 Vue 根实例中
+      // 根实例简单的渲染应用程序组件。
+      render: h => h(App)
+    })
+    return { app, router, store }
+  }
+  ```
+  + src/pages/Posts.vue 中引入 store 中的数据：
+  ```js
+  <template>
+    <div>
+      <h1>Post List</h1>
+      <ul>
+        <li v-for="post in posts" :key="post.id">{{ post.title }}</li>
+      </ul>
+    </div>
+  </template>
+
+  <script>
+  // import axios from 'axios'
+  import { mapState, mapActions } from "vuex";
+
+  export default {
+    name: "PostList",
+    metaInfo: {
+      title: "Posts"
+    },
+    data() {
+      return {
+        // posts: []
+      };
+    },
+    computed: {
+      ...mapState(["posts"])
+    },
+
+    // Vue SSR 特殊为服务端渲染提供的一个生命周期钩子函数
+    serverPrefetch() {
+      // 发起 action，返回 Promise
+      // this.$store.dispatch('getPosts')
+      return this.getPosts();
+    },
+    methods: {
+      ...mapActions(["getPosts"])
+    }
+    // 服务端渲染
+    //     只支持 beforeCreate 和 created
+    //     不会等待 beforeCreate 和 created 中的异步操作
+    //     不支持响应式数据
+    // 所有这种做法在服务端渲染中是不会工作的！！！
+    // async created () {
+    //   console.log('Posts Created Start')
+    //   const { data } = await axios({
+    //     method: 'GET',
+    //     url: 'https://cnodejs.org/api/v1/topics'
+    //   })
+    //   this.posts = data.data
+    //   console.log('Posts Created End')
+    // }
+  };
+  </script>
+
+  <style>
+  </style>
+  ```
++ 将预取数据同步导客户端
+  + src/entry-server.js 更新为：
+  ```js
+  // entry-server.js
+  import { createApp } from './app'
+
+  export default async context => {
+    // 因为有可能会是异步路由钩子函数或组件，所以我们将返回一个 Promise，
+    // 以便服务器能够等待所有的内容在渲染前，
+    // 就已经准备就绪。
+    const { app, router, store } = createApp()
+    const meta = app.$meta()
+    // 设置服务器端 router 的位置
+    router.push(context.url)
+    context.meta = meta
+    // 等到 router 将可能的异步组件和钩子函数解析完
+    await new Promise(router.onReady.bind(router))
+
+    context.rendered = () => {
+      // Renderer 会把 context.state 数据对象内联到页面模板中
+      // 最终发送给客户端的页面中会包含一段脚本：window.__INITIAL_STATE__ = context.state
+      // 客户端就要把页面中的 window.__INITIAL_STATE__ 拿出来填充到客户端 store 容器中
+      context.state = store.state
+    }
+    return app
+  }
+  ```
+  + src/entry-client.js
+  ```js
+  /**
+  * 客户端入口
+  */
+  import { createApp } from './app'
+
+  // 客户端特定引导逻辑……
+
+  const { app, router, store } = createApp()
+
+  if (window.__INITIAL_STATE__) {
+    store.replaceState(window.__INITIAL_STATE__)
+  }
+
+  router.onReady(() => {
+    app.$mount('#app')
+  })
+  ```
+
+### 任务二：静态站点生成 
+
+
+
+
+
+
+
+
 
 

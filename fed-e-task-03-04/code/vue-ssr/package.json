@@ -14,11 +14,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "chokidar": "^3.4.2",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "vue": "^2.6.11",
-    "vue-server-renderer": "^2.6.11"
+    "vue-meta": "^2.4.0",
+    "vue-router": "^3.4.3",
+    "vue-server-renderer": "^2.6.11",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",
@@ -34,6 +38,8 @@
     "vue-template-compiler": "^2.6.11",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^5.1.1",
     "webpack-node-externals": "^2.5.1"
   }

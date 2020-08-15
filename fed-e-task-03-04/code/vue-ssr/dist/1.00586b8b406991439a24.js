@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[1],{8:function(t,n,e){"use strict";e.r(n);var o={name:"Error404",components:{},props:{},data:function(){return{}},computed:{},watch:{},created:function(){},mounted:function(){},methods:{}},c=e(0),s=Object(c.a)(o,(function(){var t=this.$createElement;return(this._self._c||t)("div",{staticClass:"home"},[this._v("404页面")])}),[],!1,null,"724e78f0",null);n.default=s.exports}}]);
+//# sourceMappingURL=1.00586b8b406991439a24.js.map
