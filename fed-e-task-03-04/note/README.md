@@ -1213,6 +1213,64 @@ export default {
   + npm install -g node-gyp
 + gridsome create my-gridsome-site
 
+### 任务三：封装 Vue.js 组件库
+#### 1、课程目标
++ CDD(Component-Driven Development)
+  + 自下而上
+  + 从组件级别开始，到页面级别结束
++ CDD 的好处
+  + 组件在最大程度被重用
+  + 并行开发
+  + 可视化测试
++ 课程介绍
+  + 处理组件的边界情况
+  + 快速原型开发
+  + 组件开发
+  + Storybook
+  + Monorepo
+  + 基于模板生成包的结构
+  + Lerna + yarn workspaces
+  + 组件测试
+  + Rollup 打包
+#### 2、处理组件的边界情况
++ $root
++ $parent/$children
++ $refs
+```js
+this.$refs[formName].validate((valid)=>{
+  if(valid){
+    alert('submit')
+  }else{
+    console.log('error submit!!!')
+    return false
+  }
+})
+```
++ 依赖注入 provide/inject
+#### 3、$attrs/$listeners
++ $attrs: 把父组件中非 prop 属性绑定到内部组件
++ $listeners: 把父组件中的 DOM 对象的原生事件绑定到内部组件
+#### 4、快速原型开发
++ VueCLI 中提供了一个插件可以进行原型快速开发
++ 需要先额外安装一个全局的扩展
+  + npm install -g @vue/cli-service-global
++ 使用 vue serve 快速查看组件的运行效果
++ vue serve
+  + vue serve 如果不指定参数默认会在当前目录找以下的入口文件
+    + main.js、index.js、App.vue、app.vue
+  + 可以指定要加载的组件
+    + vue serve ./src/login.vue
++ ElementUI
+  + 安装 ElementUI 
+    + 初始化 package.json
+      + npm init -y
+  + 安装 ElementUI
+    + vue add element
+  + 加载 ElementUI，使用 Vue.use()安装插件
+
+
+
+
 
 
 
