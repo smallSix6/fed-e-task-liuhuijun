@@ -1193,8 +1193,25 @@ export default {
   ```
 
 ### 任务二：静态站点生成 
-
-
+#### 1、创建 Gridsome 项目
++ Gridsome 介绍
+  - GitHub 仓库：https://github.com/gridsome/gridsome
+  - 官网：https://gridsome.org/
+  - Gridsome 是由Vue.js驱动的Jamstack框架，用于构建默认情况下快速生成的静态生成的网站和应用。
+  - Gridsome是Vue提供支持的静态站点生成器，用于为任何无头CMS，本地文件或API构建可用于CDN的网站
+  - 使用Vue.js，webpack和Node.js等现代工具构建网站。通过npm进行热重载并访问任何软件包，并使用自动前缀在您喜欢的预处理器（如Sass或Less）中编写CSS。
+  - 基于 Vue.js 的 Jamstack 框架
+  - Gridsome 使开发人员可以轻松构建默认情况下快速生成的静态生成的网站和应用程序
+  - Gridsome允许在内容里面引用任何CMS或数据源。
+  - 从WordPress，Contentful或任何其他无头CMS或API中提取数据，并在组件和页面中使用GraphQL访问它。
+  - sudo npm install --global @gridsome/cli
++ sharp
+  + https://sharp.pixelplumbing.com/install
+  + npm config set sharp_binary_host "https://npm.taobao.org/mirrors/sharp"
+  + npm config set sharp_libvips_binary_host "https://npm.taobao.org/mirrors/sharp-libvips"
++ node-gyp: 编译 node 中的 c++ 模块
+  + npm install -g node-gyp
++ gridsome create my-gridsome-site
 
 
 
