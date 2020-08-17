@@ -1267,6 +1267,11 @@ this.$refs[formName].validate((valid)=>{
   + 安装 ElementUI
     + vue add element
   + 加载 ElementUI，使用 Vue.use()安装插件
+#### 5、组件开发
++ 组件分类
+  + 第三方组件
+  + 基础组件
+  + 业务组件
 
 
 
