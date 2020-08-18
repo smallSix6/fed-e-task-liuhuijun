@@ -221,13 +221,85 @@ compInstance._reactInternalFiber
 ```
 + Fiber 节点上有很多字段。我在前面的部分中描述了字段 alternate、 effectTag 和 nextEffect 的用途。现在让我们看看为什么需要其他字段。
 
-#### stateNode
+##### stateNode
 + 保存组件的类实例、DOM 节点或与 Fiber 节点关联的其他 React 元素类型的引用。总的来说，我们可以认为该属性用于保持与一个 Fiber 节点相关联的局部状态。
 
-#### type
+##### type
 + 定义此 Fiber 节点的函数或类。对于类组件，它指向构造函数，对于 DOM 元素，它指定 HTML 标记。我经常使用这个字段来理解 Fiber 节点与哪个元素相关。
 
+##### tag
++ 定义 [Fiber 的类型](https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/shared/ReactWorkTags.js)。它在协调算法中用于确定需要完成的工作。如前所述，工作取决于React元素的类型。函数 [createFiberFromTypeAndProps](https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/react-reconciler/src/ReactFiber.js#L414) 将 React 元素映射到相应的 Fiber 节点类型。在我们的应用程序中，ClickCounter 组件的属性 tag 是 1，表示是 ClassComponent（类组件），而 span 元素的属性 tag 是 5，表示是 HostComponent（宿主组件）。
 
+##### updateQueue
++ 状态更新、回调和 DOM 更新的队列
+
+##### memoizedState
++ 用于创建输出的 Fiber 状态。处理更新时，它会反映当前在屏幕上呈现的状态
+
+##### memoizedProps
++ 在前一个渲染中用于创建输出的 Fiber 的 props
+
+##### pendingProps
++ 已从 React 元素中的新数据更新并且需要应用于子组件或 DOM 元素的 props
+
+##### key
++ 唯一标识符，当具有一组子元素的时候，可帮助 React 确定哪些项发生了更改、添加或删除。它与 [此处](https://reactjs.org/docs/lists-and-keys.html#keys) 描述的 React 的 「列表和键」功能有关。
++ 您可以在 [此处](https://github.com/facebook/react/blob/6e4f7c788603dac7fccd227a4852c110b072fe16/packages/react-reconciler/src/ReactFiber.js#L78) 找到 Fiber 节点的完整结构。我在上面的解释中省略了一堆字段。特别是，我跳过了指针 child、sibling 和 retirn, 他们构成了我在 [上一篇文章](https://medium.com/react-in-depth/the-how-and-why-on-reacts-usage-of-linked-list-in-fiber-67f1014d0eb7) 中描述的树数据结构。以及专属于 Scheduler 的 expirationTime, childExpirationTime 和 mode 等字段类别。
+
+##### 通用算法
++ React 在两个主要阶段执行工作：render 和 commit。
+
++ 在第一个 render 阶段，React 通过 setUpdate 或 React.render 计划性的更新组件，并确定需要在 UI 中更新的内容。如果是初始渲染，React 会为 render 方法返回的每个元素创建一个新的 Fiber 节点。在后续更新中，现有 React 元素的 Fiber 节点将被重复使用和更新。**这一阶段是为了得到标记了副作用的 Fiber 节点树**。副作用描述了在下一个 commit 阶段需要完成的工作。在当前阶段，React 持有标记了副作用的 Fiber 树并将其应用于实例。他遍历副作用列表、执行 DOM 更新和用户可见的其它更改。
+
++ **我们需要重点理解的是，第一个 render 阶段的工作是可以异步执行的。**React 可以根据可用时间片来处理一个或多个 Fiber 节点，然后停下来暂存已完成的工作，并转而去处理某些事件，接着它在从它停止的地方继续执行。但有时候，他可能需要丢弃完成的工作并再次从顶部开始。由于在此阶段执行的工作不会导致任何用户可见的更改（如 DOM 更新），因此暂停行为才有了意义。**与之相反的是，后续 commit 阶段始终是同步的。**这是因为在此阶段执行的工作会导致用户可见的变化，例如 DOM 更新。这就是为什么 React 需要在一次单一过程中完成这些更新。
+
++ React 要做的一种工作就是调用生命周期方法。一些方法是在 render 阶段调用的，而另一些方法则是在 commit 阶段调用。这是在第一个 render 阶段调用的生命周期列表：
+  + 【UNSAFE_】componentWillMount (弃用)
+  + 【UNSAFE_】componentWillReceiveProps (弃用)
+  + getDerivedStateFromProps
+  + shouldComponentUpdate
+  + 【UNSAFE_】componentWillUpdate (弃用)
+  + render
+
++ 正如你所看到的，从版本 16.3 开始，在 render 阶段执行的一些保留的生命周期方法被标记为 UNSAFE，它们现在在文档中被称为遗留生命周期。他们将在未来的 16.x 发布版本中弃用，而没有 UNSAFE 前缀的方法将在17.0 中移除。您可以在 [此处](https://zh-hans.reactjs.org/blog/2020/08/10/react-v17-rc.html) 详细了解更改以及建议的迁移路径。
+
++ 那么这么做的目的是什么呢？
+
++ 好吧，我们刚刚了解到，因为 render 阶段不会产生像 DOM 更新这样的副作用，所以 React 可以异步处理组件的异步更新（甚至可能在多个线程中执行）。但是，标有 UNSAFE 的生命周期经常被误解和滥用。开发人员倾向于将带有副作用的代码放在这些方法中，这可能会导致新的异步渲染方法出现问题。虽然只有没有 UNSAFE 前缀的对应方法将被删除，但它们仍可能在即将出现的并发模式（您可以选择退出）中引起问题。
+
++ 接下来罗列的生命周期方法是在第二个 commit 阶段执行的：
+  + getSnapshotBeforeUpdate
+  + componentDidMount
+  + componentDidUpdate
+  + componentWillUnmount
+
++ 因为这些方法都在同步的 commit 阶段执行，他们可能会包含副作用，并对 DOM 进行一些操作
+
++ 至此，我们已经有了充分的背景知识，下面我们可以看下用来遍历树和执行一些工作的通用算法。
+
+### Render 阶段
++ 协调算法始终使用 [renderRoot](https://github.com/facebook/react/blob/95a313ec0b957f71798a69d8e83408f40e76765b/packages/react-reconciler/src/ReactFiberScheduler.js#L1132) 函数从最顶层的 HostRoot 节点开始。不过，React 会略过已经处理过的 Fiber 节点，直到找到为完成工作的节点。例如，如果在组建书中的深层组件中调用 setState 方法，则 React 将从顶部开始，但会快速跳过各个父项，直到它到达调用了 setState 方法的组件。
+
+#### 工作循环的主要步骤
++ 所有的 Fiber 节点都会在 [工作循环](https://github.com/facebook/react/blob/f765f022534958bcf49120bf23bc1aa665e8f651/packages/react-reconciler/src/ReactFiberScheduler.js#L1136)中进行处理。如下是该循环的同步部分的实现：
+```js
+function workLoop(isYieldy) {
+  if (!isYieldy) {
+    while (nextUnitOfWork !== null) {
+      nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    }
+  } else {...}
+}
+```
++ 在上面的代码中，nextUnitOfWork  持有 workInProgress 树中的 Fiber 节点的引用，这个树有一些工作要做。当 React 遍历 Fiber 树时，它会使用这个变量来知晓是否有任何其他 Fiber 节点具有未完成的工作。处理过当前 Fiber 后，变量将持有树中下一个 Fiber 节点的引用或 null。在这种情况下，React 退出工作循环并准备好提交更改。
+
++ 遍历树、初始化或完成工作主要用到 4 个函数：
+  + performUnitOfWork
+  + beginWork
+  + completeUnitOfWork
+  + completeWork
++ 为了演示他们的使用方法，我们可以看看如下展示的遍历 Fiber 树的动画。我已经在演示中使用了这些函数的简化实现。每个函数都需要对一个 Fiber 节点进行处理，当 React 从树上下来时，您可以看到当前活动的 Fiber 节点发生了变化。从视频中我们可以清楚地看到算法如何从一个分支转到另一个分支。他首先完成子节点的工作，然后才转移到父节点进行处理。
++ ![](./images/遍历Fiber.webp)
 
 
 
