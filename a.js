@@ -231,8 +231,24 @@
 
 // console.log(r._value)
 
-const browserSync = require('browser-sync')
-console.log(222, browserSync)
-const bs = browserSync.create()
-console.log(222, bs)
+// const browserSync = require('browser-sync')
+// console.log(222, browserSync)
+// const bs = browserSync.create()
+// console.log(222, bs)
+
+
+function Parent(name) {
+  this.name = name
+}
+function Child(name) {
+  Parent.call(this, name)
+}
+var child1 = new Child('kevin');
+
+console.log(child1.name); // kevin
+
+var child2 = new Child('daisy');
+
+console.log(child2.name); // daisy
+
 

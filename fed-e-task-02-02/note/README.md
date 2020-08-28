@@ -57,7 +57,7 @@
     ```
 
 ##### 3、ES Modules特性
-+ 通过给 script 添加 type=module 的属性，就可以以ES Module 的标准执行其中的 js 代码
++ 通过给 script 添加 type=module 的属性，就可以以 ES Module 的标准执行其中的 js 代码
   ```js
   <script type='module'></script>
   ```
