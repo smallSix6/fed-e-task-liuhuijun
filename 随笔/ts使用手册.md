@@ -32,7 +32,7 @@ let isBool1: boolean = false
 let number: number = 10
 ```
 #### Array 类型
-+ 数组是 Array 类型。然而，因为数组是一个集合，我们还需要指定在数组中的元素的类型。我们通过 Array<type> or type[] 语法为数组内的元素指定类型
++ 数组是 Array 类型。然而，因为数组是一个集合，我们还需要指定在数组中的元素的类型。我们通过 Array\<type\> or type[] 语法为数组内的元素指定类型
 
 
 
