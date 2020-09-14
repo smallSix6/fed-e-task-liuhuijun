@@ -27,12 +27,7 @@ module.exports = function (api) {
       title: 'A post',
       tags: ['1']
     })
-
-    // Use the Data Store API here: https://gridsome.org/docs/data-store-api/
-    // const collection = addCollection('Post')
-
     const { data } = await axios.get('https://jsonplaceholder.typicode.com/posts')
-
     for (const item of data) {
       posts.addNode({
         id: item.id,

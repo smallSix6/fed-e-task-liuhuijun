@@ -28,6 +28,7 @@
               <div class="form-group floating-label-form-group controls">
                 <label>Name</label>
                 <input
+                  v-model="form.name"
                   type="text"
                   class="form-control"
                   placeholder="Name"
@@ -43,6 +44,7 @@
                 <label>Email Address</label>
                 <input
                   type="email"
+                  v-model="form.email"
                   class="form-control"
                   placeholder="Email Address"
                   id="email"
@@ -56,6 +58,7 @@
               <div class="form-group col-xs-12 floating-label-form-group controls">
                 <label>Phone Number</label>
                 <input
+                  v-model="form.phone"
                   type="tel"
                   class="form-control"
                   placeholder="Phone Number"
@@ -70,6 +73,7 @@
               <div class="form-group floating-label-form-group controls">
                 <label>Message</label>
                 <textarea
+                  v-model="form.message"
                   rows="5"
                   class="form-control"
                   placeholder="Message"
@@ -82,7 +86,12 @@
             </div>
             <br />
             <div id="success"></div>
-            <button type="submit" class="btn btn-primary" id="sendMessageButton">Send</button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="sendMessageButton"
+              @click.prevent="onSubmit"
+            >Send</button>
           </form>
         </div>
       </div>
@@ -91,10 +100,32 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "ContactPage",
-  metaInfo: {
-    title: "Contact us"
+  data() {
+    return {
+      form: {
+        name: "",
+        email: "",
+        phone: "",
+        message: ""
+      }
+    };
+  },
+  methods: {
+    async onSubmit() {
+      try {
+        const { data } = await axios({
+          method: "POST",
+          url: "http://localhost:1337/contacts",
+          data: this.form
+        });
+        window.alert("发送成功");
+      } catch (e) {
+        alert("发送失败，请稍后重试");
+      }
+    }
   }
 };
 </script>

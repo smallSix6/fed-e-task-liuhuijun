@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "generals",
+  "info": {
+    "name": "General"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "richtext"
+    },
+    "cover": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false
+    }
+  }
+}

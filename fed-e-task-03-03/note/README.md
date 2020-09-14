@@ -1372,6 +1372,13 @@ app.listen(3000, () => {
     }
     ```
     + 提交更新
+      + git add .
+      + git commit -m"第一次发布部署-测试"
+      + git push （此时只是推送了提交记录，并不会触发自动化构建）
+      + git add .
+      + git tag v0.1.0 （通过tag打版）
+      + git tag （查看版本）
+      + git push origin v0.1.0 （把本地标签推送到远程仓库，会触发自动构建）
     + 查看自动部署状态
     + 访问网站
     + 提交更新
