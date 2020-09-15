@@ -1,10 +1,7 @@
 <template>
   <Layout>
     <!-- Page Header -->
-    <header
-      class="masthead"
-      :style="{background: `url(http://localhost:1337${$page.post.cover.url})`}"
-    >
+    <header class="masthead" :style="{background: `url(${GRIDSOME_API_URL+$page.post.cover.url})`}">
       <div class="overlay"></div>
       <div class="container">
         <div class="row">

@@ -2227,8 +2227,71 @@ export default {
       + 服务器拉去代码：git clone https://gitee.com/lhuijun/blog-backend.git
       + cd blog-backend
       + npm i
-      + npm run build(这一步如果卡在 90% 的话，就中断了 运行 npm run develop)
+      + npm run build
       + npm run start
+    + start 此时命令行被占用，退出命令行服务就会停止，所以使用pm2守护进程，让一个node应用启动在后台
+    ```js
+    pm2 start npm -- run start --name blog-backend
+    ```
+    + 或者
+    ```js
+    pm2 start npm --name "blog-backend" -- run start
+    ```
+    + 打开网址：http://47.101.56.180:5001/admin   进入登录页
+    + ![](../images/myStrapi.png)
+    + 创建如上图所示的集合
++ 把本地服务联通远程 Strapi
+  + 配置 Gridsome 环境变量<https://gridsome.org/docs/environment-variables/>
+    + 根目录下新建两个文件
+      + .env.development：开发环境的变量
+      ```js
+      GRIDSOME_API_URL=http://47.101.56.180:5001
+      ```
+      + .env.production：生产环境的变量
+      ```js
+      GRIDSOME_API_URL=http://47.101.56.180:5001
+      ```
+    + gridsome.config.js 中的配置如下：
+    ```js
+    ...
+    {
+      use: '@gridsome/source-strapi',
+      options: {
+        apiURL: process.env.GRIDSOME_API_URL,
+        queryLimit: 1000, // Defaults to 100
+        contentTypes: ['post', 'tag'],
+        singleTypes: ['general'],
+        // Possibility to login with a Strapi user,
+        // when content types are not publicly available (optional).
+        // loginData: {
+        //   identifier: '',
+        //   password: ''
+        // }
+      }
+    }
+    ...
+    ```
+    + 在src/main.js中注入环境变量到页面模板中使用：
+    ```js
+    export default function (Vue, { router, head, isClient }) {
+      Vue.mixin({
+        data() {
+          return {
+            GRIDSOME_API_URL: process.env.GRIDSOME_API_URL
+          }
+        }
+      })
+      // Set default layout as a global component
+      Vue.component('Layout', DefaultLayout)
+    }
+    ```
+    + 将页面中之前用到localhost:1337的路径都替换掉，如背景图片：
+    ```js
+    :style="{backgroundImage: `url(${GRIDSOME_API_URL+$page.post.cover.url})`}"
+    ```
++  部署 Gridsome 应用
+  + vercel 可以使得在 Gridsome 代码发生了改变，或者 strapi 的数据发生了改变时，都可以触发 Gridsome 的自动部署。
+  + Vercel网址：vercel.com
 
 
 

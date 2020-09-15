@@ -52,22 +52,33 @@ function Heart(props) {
 class Alert extends TinyReact.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      title: 'default Title'
+    }
+    this.handleClick = this.handleClick.bind(this)
+  }
+  handleClick() {
+    this.setState({ title: 'change Title' })
   }
   render() {
+    console.log('state', this.state)
     return (
       <div>
         {this.props.name}
         {this.props.age}
-        Hello React
+        <div>
+          {this.state.title}
+          <button onClick={this.handleClick}>改变Title</button>
+        </div>
       </div>
     )
   }
 }
-// TinyReact.render(<Alert name="张三" age={20} />, root)
+TinyReact.render(<Alert name="张三" age={20} />, root)
 
-TinyReact.render(virtualDOM, root)
+// TinyReact.render(virtualDOM, root)
 
-setTimeout(() => {
-  TinyReact.render(modifyDOM, root)
-}, 2000)
+// setTimeout(() => {
+//   TinyReact.render(modifyDOM, root)
+// }, 2000)
 
