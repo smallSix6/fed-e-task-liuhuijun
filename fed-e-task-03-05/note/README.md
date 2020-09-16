@@ -98,11 +98,83 @@
 + 支持模块的 script 默认延迟加载
   + 类似于 script 标签设置 defer
   + 在文档解析完成后，触发 DOMContentLoaded 事件前执行
-  + 案例：
-    + +01-esmodule
-      + +modules
-        + +index.js
-        + +utils.js
-      + +index.html 
+  + 案例目录结构如下：
+    + 01-esmodule
+      + modules
+        + index.js
+        ```js
+        import { forEach } from './utils.js'
+        const app = document.querySelector('#app')
+        console.log(app.innerHTML)
+        const arr = [1, 2, 3]
+        forEach(arr, item => {
+          console.log(item)
+        })
+        ```
+        + utils.js
+        ```js
+        export const forEach = (array, fn) => {
+          let i
+          for (i = 0; i < array.length; i++) {
+            fn(array[i])
+          }
+        }
 
+        export const some = (array, fn) => {
+          let result = true
+          for (const value of array) {
+            result = result || fn(value)
+            if (result) {
+              break
+            }
+          }
+          return result
+        }
+        ```
+      + index.html 
+      ```js
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+      </head>
+      <body>
+        <div id="app">Hello World</div>
+        <script>
+          window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded')
+          })
+
+        </script>
+        <script type="module" src="./modules/index.js"></script>
+      </body>
+      </html>
+      ```
+  + 运行 `npx serve .` 命令，打印如下：
+  ```js
+  Hello World
+  1
+  2
+  3
+  DOMContentLoaded
+  ```
++ Vite as Vue-CLI
+  + Vite 在开发模式下不需要打包可以直接运行
+  + Vue-CLI 开发模式下必须对项目打包才可以运行
+  + Vite 在生产环境下使用 Rollup 打包
+    + 基于 ES Module 的打包
+  + Vue-CLI 在生产环境下使用 webpack 打包
+  + Vite 特点：
+    + 快速冷启动
+    + 按需编译
+    + 模块热更新
++ vite 创建项目方式如下：
++ ![](../images/vite创建项目.png)
++ 创建完 vite 项目后，运行项目，在浏览器中打开项目，查看 network，会发现有很多 .vue 结尾的请求，.vue 文件的渲染如下：
++ ![](../images/appVue.png) 
++ ![](../images/appVue的返回.png) 
++ 上图中的代码 `import {render as __render} from "/src/App.vue?type=template"` 会在服务器端经过 compiler.sfc 模块的解析，返回的结果如下图
++ ![](../images/appVue的template的返回.png) 
 
