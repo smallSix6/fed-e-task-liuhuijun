@@ -99,9 +99,10 @@
   + 类似于 script 标签设置 defer
   + 在文档解析完成后，触发 DOMContentLoaded 事件前执行
   + 案例：
-.
-+-- 01-esmodule
-|   +-- modules
-|   +-- index.html 
+    + +01-esmodule
+      + +modules
+        + +index.js
+        + +utils.js
+      + +index.html 
 
 
