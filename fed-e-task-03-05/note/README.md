@@ -102,8 +102,6 @@
 .
 +-- 01-esmodule
 |   +-- modules
-|       +-- index.js
-|       +-- utils.js
 |   +-- index.html 
 
 
