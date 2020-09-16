@@ -57,12 +57,52 @@
 + ![](../images/optionsVScomposition.png)
 #### 4、性能提升
 + 响应式系统升级
-  + Vue.js 2.x 中响应式系统的核心 defineProperty
+  + Vue.js 2.x 中响应式系统的核心 defineProperty（即使没有给属性赋值，初始化实例的时候也会递归调用 defineProperty）
   + Vue.js 3.0 中使用 Proxy 对象重写响应式系统
     + 可以监听动态新增的属性
     + 可以监听删除的属性
     + 可以监听数组的索引和 length 属性
 + 编译优化
+  + Vue.js 2.x 中通过标记静态根节点，优化 diff 的过程
+  + Vue.js 3.0 中标记和提升所有的静态节点，diff 的时候只需要对比动态节点内容
+    + Fragments(升级 vrtur 插件)
+      + vue 代码片段如下；
+      + ![](../images/)
+      + 有根节点的时候 render 函数的返回结果如下图：
+      + ![](../images/有根节点的时候render结果.png)
+      + 没有根节点的时候 render 函数的返回结果如下图：
+      + ![](../images/没有根节点的render结果.png)
+      + 对比上面两张图，可以看出，有根节点的时候 render 函数会调用 _createBlock 创建 div 的根节点；没有根节点的时候 render 函数会调用 _createBlock 创建 Fragment 节点。然后调用 _createVNode 来创建节点
+    + 静态提升
+      + ![](../images/hoist(静态节点).png)
+      + 上图可以看出，vue3.0 会提取出静态节点，优化 diff 算法
+    + Patch flag
+      + ![](../images/patchFlag.png)
+      + 上图中标记了该节点动态绑定了 text 和 props 为 [id] 的属性数组，所以在 diff 的时候只需要比较 text 和 id 属性即可
+    + 缓存事件处理函数
+      + 没有开启事件缓存的时候
+        + ![](../images/没有开启缓存.png)
+      + 开启时间缓存的时候
+        + ![](../images/开启缓存.png)
+      + 对比上面两图可以看出，开启了事件缓存的时候在第一轮之后的 render 都会判断是否有了第一次 render 时候的函数，有了则去缓存 
 + 源码体积的优化
+  + Vue3.0 中移除了一些不常用的 APU
+    + 例如：inline-template, filter 等
+  + Tree-shaking
+#### 5、vite
++ 现代浏览器都支持 ES Module (IE 不支持)
++ 通过下面的方式加载模块
+  ```js
+  <script type="module" src="..."></script>
+  ```
++ 支持模块的 script 默认延迟加载
+  + 类似于 script 标签设置 defer
+  + 在文档解析完成后，触发 DOMContentLoaded 事件前执行
+  + 案例：
++-- 01-esmodule
+|   +-- modules
+|       +-- index.js
+|       +-- utils.js
+|   +-- index.html 
 
 
