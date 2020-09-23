@@ -22,8 +22,10 @@
 + 相关配置说明
   + 安装了 TS 相关的依赖项
     + dependencies 依赖：
+
     | 依赖项                        |  说明            |
     |-----                         |----             |
     |vue-class-component           |提供使用 Class 语法写 Vue 组件|
     |vue-property-decorator        |在 Class 语法基础上提供了一些辅助装饰器|
+
 
