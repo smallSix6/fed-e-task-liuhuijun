@@ -237,18 +237,36 @@
 // console.log(222, bs)
 
 
-function Parent(name) {
-  this.name = name
-}
-function Child(name) {
-  Parent.call(this, name)
-}
-var child1 = new Child('kevin');
+// function Parent(name) {
+//   this.name = name
+// }
+// function Child(name) {
+//   Parent.call(this, name)
+// }
+// var child1 = new Child('kevin');
 
-console.log(child1.name); // kevin
+// console.log(child1.name); // kevin
 
-var child2 = new Child('daisy');
+// var child2 = new Child('daisy');
 
-console.log(child2.name); // daisy
+// console.log(child2.name); // daisy
 
+
+"use strict";
+
+var myClosure = (function outerFunction() {
+
+  var hidden = 1;
+
+  return {
+    inc: function innerFunction() {
+      return hidden++;
+    }
+  };
+
+}());
+
+myClosure.inc();  // 返回 1
+myClosure.inc();  // 返回 2
+myClosure.inc();  // 返回 3
 
