@@ -238,6 +238,30 @@ prototype(Child, Parent)
 + 引用《JavaScript高级程序设计》中对寄生组合式继承的夸赞就是：
 + 这种方式的高效率体现它只调用了一次 Parent 构造函数，并且因此避免了在 Parent.prototype 上面创建不必要的、多余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用 instanceof 和 isPrototypeOf。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
 
+## ts
+### Partial
+```js
+type Partial<T> = {
+  [P in keyof T]? : T[P]
+}
+```
+### Record
+```js
+type Record<K extends keyof any, T> = {
+  [P in K]: T
+}
+```
+### Pick
+```js
+type Pick<T, K extends keyof T> = {
+  [P in keyof T]: T[P]
+}
+```
+### Exclude
+```js
+type Exclude<T, U> = T extends U ? never : T
+```
+
 
 
 

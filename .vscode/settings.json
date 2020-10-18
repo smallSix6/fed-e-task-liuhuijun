@@ -2,7 +2,6 @@
   "git.ignoreLimitWarning": true,
   "wxmlConfig.onSaveFormat": true,
   "editor.tabSize": 2,
-  "editor.autoIndent": "none",
   "editor.detectIndentation": false,
   "editor.dragAndDrop": false,
   "editor.mouseWheelZoom": true,

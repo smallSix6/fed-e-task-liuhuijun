@@ -320,6 +320,19 @@ let output2 = Hello('Hello Generic')
 console.log(outPut);
 console.log(outPut2);
 ```
+#### tsconfig.json
+```js
+  "noImplicitAny": false, // 不需要显示的指定 any
+  "strictNullChecks": false, // 不需要强制对 null 类型检测
+  "rootDir": "./src", // 输入文件路劲
+  "outDir": "./build", // 输入文件路劲
+  "incremental": true, // 增量编译
+  "target": "es5", // 编译为指定版本
+  "allowJs": true, // 编译 js 文件
+  "checkJs": true, // 对 js 进行语法检测
+  "noUnusedLocals": true, // 没有用到的变量有警告提示
+  "noUnusedParameters": true, // 没有用到的函数参数会警告提示
+```
 
 
 

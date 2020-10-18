@@ -15,3 +15,11 @@
 
 ### 任务二：VDOM 及 diff 算法
 #### 1、
+
+
+### 任务三：Fiber
+#### 1、开发配置：
++ 安装依赖：
+  ```js
+  npm i webpack webpack-cli webpack-node-externals @babel/core @babel/preset-env @babel/preset-react babel-loader nodemon npm-run-all express -D
+  ```
