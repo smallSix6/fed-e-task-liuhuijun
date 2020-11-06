@@ -174,3 +174,38 @@ function resolvePromise(promise2, x, resolve, reject) {
     }
 }
 module.exports = MyPromise
+
+
+
+
+
+// 实现 promise 最大请求数
+class limitPromise {
+  constructor(max) {
+    this.max = max
+    this._count = 0
+    this._pendingTask = []
+  }
+  call = (caller, ...arg) => {
+    return new Promise((resolve, reject) => {
+      let task = this._createTask(caller, arg, resolve, reject)
+      if(this.max > this._count) {
+        this._pendingTask.push()
+      }else{
+        task()
+      }     
+    })
+  }
+  _createTask = (caller, arg, resolve, reject) => {
+    return () => {
+      this._count++;
+      caller(...arg).then(resolve).catch(reject).finally(()=>{
+        this._count--;
+        if (this._pendingTask.length) {
+          let task = this._pendingTask.shift()
+          task()
+        }
+      })
+    }
+  }
+}
