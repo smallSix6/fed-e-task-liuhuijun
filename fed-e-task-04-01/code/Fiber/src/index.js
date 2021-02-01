@@ -7,13 +7,12 @@ const jsx = (
     <p>ggggg</p>
   </div>
 );
-console.log(111, jsx);
 render(jsx, root);
 
 setTimeout(() => {
   const jsx = (
     <div>
-      <div>奥利给</div>
+      <p>奥利给</p>
       <p>ggggg</p>
     </div>
   );
@@ -39,3 +38,4 @@ function FnComponent(props) {
 }
 
 // render(<Greating title="hello" />, root);
+// render(<FnComponent title="hello" />, root);

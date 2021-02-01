@@ -1,9 +1,9 @@
-export const createReactInstance = (fiber) => {
-  let instance = null;
+export const createReactInstance = fiber => {
+  let instance = null
   if (fiber.tag === "class_component") {
-    instance = new fiber.type(fiber.props);
+    instance = new fiber.type(fiber.props)
   } else {
-    instance = fiber.type;
+    instance = fiber.type
   }
-  return instance;
-};
+  return instance
+}

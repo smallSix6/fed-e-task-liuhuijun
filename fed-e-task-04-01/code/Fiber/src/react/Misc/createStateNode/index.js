@@ -1,12 +1,12 @@
-import { createDOMElement } from "../../DOM";
-import { createReactInstance } from "../../Misc/CreateReactInstance";
+import { createDOMElement } from "../../DOM"
+import { createReactInstance } from "../createReactInstance"
 
-const createStateNode = (fiber) => {
+const createStateNode = fiber => {
   if (fiber.tag === "host_component") {
-    return createDOMElement(fiber);
+    return createDOMElement(fiber)
   } else {
-    return createReactInstance(fiber);
+    return createReactInstance(fiber)
   }
-};
+}
 
-export default createStateNode;
+export default createStateNode
