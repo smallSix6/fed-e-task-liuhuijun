@@ -1,2 +1,1 @@
-## prettier 插件重启
-## "javascript.validate.enable": false 开启
+作业后面补，着急看第五阶段的内容，麻烦开通下权限，谢谢。
